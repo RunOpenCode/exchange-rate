@@ -18,7 +18,7 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
      */
     public function getName()
     {
-        return 'National Bank of Serbia';
+        return 'national_bank_of_serbia';
     }
 
     /**

@@ -2,32 +2,163 @@
 
 namespace RunOpenCode\ExchangeRate\Repository;
 
+use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
+use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
+use RunOpenCode\ExchangeRateBundle\Model\Rate;
 
 class FileRepository implements RepositoryInterface
 {
+    const RATE_KEY_FORMAT = '%currency_code%_%date%_%rate_type%';
+
+    /**
+     * File where all rates are persisted.
+     *
+     * @var string
+     */
+    protected $pathToFile;
+
+    /**
+     * Collection of loaded rates.
+     *
+     * @var array
+     */
+    protected $rates;
+
+    /**
+     * Collection of latest rates (to speed up search process).
+     *
+     * @var array
+     */
+    protected $latest;
+
+    public function __construct($pathToFile)
+    {
+        $this->pathToFile = $pathToFile;
+
+        if (!file_exists($this->pathToFile)) {
+            touch($this->pathToFile);
+        }
+
+        if (!is_readable($this->pathToFile)) {
+            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be readable.', $this->pathToFile));
+        }
+
+        if (!is_writable($this->pathToFile)) {
+            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be writeable.', $this->pathToFile));
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
     public function save(array $rates)
     {
+        if (!$this->rates) {
+            $this->load();
+        }
 
+        /**
+         * @var RateInterface $rate
+         */
+        foreach ($rates as $rate) {
+            $this->rates[sprintf('%s_%s_%s', $rate->getCurrencyCode(), $rate->getDate()->format('Y-m-d'), $rate->getRateType())] = $rate;
+        }
+
+        usort($this->rates, function($rate1, $rate2) {
+            /**
+             * @var RateInterface $rate1
+             * @var RateInterface $rate2
+             */
+            return ($rate1->getDate() > $rate2->getDate()) ? -1 : 1;
+        });
+
+        $data = '';
+
+        /**
+         * @var RateInterface $rate
+         */
+        foreach ($this->rates as $rate) {
+            $data .= json_encode(array(
+                    'sourceName' => $rate->getSourceName(),
+                    'value' => $rate->getValue(),
+                    'currencyCode' => $rate->getCurrencyCode(),
+                    'rateType' => $rate->getRateType(),
+                    'date' => $rate->getDate()->format('Y-m-d H:i:s'),
+                    'baseCurrencyCode' => $rate->getBaseCurrencyCode()
+                )) . "\n";
+        }
+
+        file_put_contents($this->pathToFile, $data, LOCK_EX);
+
+        $this->load();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function has($currencyCode, $date = null, $rateType = 'default')
+    public function delete(array $rates)
     {
-        // TODO: Implement has() method.
+        if (!$this->rates) {
+            $this->load();
+        }
+
+        /**
+         * @var RateInterface $rate
+         */
+        foreach ($rates as $rate) {
+            unset($this->rates[$this->getRateKey($rate)]);
+        }
+
+        $this->save(array());
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($currencyCode, $date = null, $rateType = 'default')
+    public function has($currencyCode, \DateTime $date = null, $rateType = 'default')
     {
-        // TODO: Implement get() method.
+        if (!$this->rates) {
+            $this->load();
+        }
+
+        if (is_null($date)) {
+            $date = new \DateTime('now');
+        }
+
+        return array_key_exists(str_replace(array(
+            $currencyCode,
+            $date->format('Y-m-d'),
+            $rateType
+        ), array(
+            '%currency_code%',
+            '%date%',
+            '%rate_type%'
+        ), self::RATE_KEY_FORMAT), $this->rates);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get($currencyCode, \DateTime $date = null, $rateType = 'default')
+    {
+        if (!$this->rates) {
+            $this->load();
+        }
+
+        if (is_null($date)) {
+            $date = new \DateTime('now');
+        }
+
+        return $this->rates[str_replace(array(
+            $currencyCode,
+            $date->format('Y-m-d'),
+            $rateType
+        ), array(
+            '%currency_code%',
+            '%date%',
+            '%rate_type%'
+        ), self::RATE_KEY_FORMAT)];
     }
 
     /**
@@ -35,7 +166,21 @@ class FileRepository implements RepositoryInterface
      */
     public function latest($currencyCode, $rateType = 'default')
     {
-        // TODO: Implement latest() method.
+        if (!$this->rates) {
+            $this->load();
+        }
+
+        /**
+         * @var RateInterface $rate
+         */
+        foreach ($this->rates as $rate) {
+
+            if ($rate->getCurrencyCode() == $currencyCode && $rate->getRateType() == $rateType) {
+                return $rate;
+            }
+        }
+
+        throw new ExchangeRateException(sprintf('Could not fetch latest rate for rate currency code "%s" and rate type "%s".', $currencyCode, $rateType));
     }
 
     /**
@@ -43,6 +188,127 @@ class FileRepository implements RepositoryInterface
      */
     public function all(array $criteria = array())
     {
-        // TODO: Implement all() method.
+        if (!$this->rates) {
+            $this->load();
+        }
+
+        if (count($criteria) == 0) {
+            return $this->rates;
+        } else {
+            $result = array();
+
+            /**
+             * @var RateInterface $rate
+             */
+            foreach ($this->rates as $rate) {
+
+                if ($this->matches($rate, $criteria)) {
+                    $result[] = $rate;
+                }
+            }
+
+            return $result;
+        }
+    }
+
+    /**
+     * Check if rate matches filter criteria.
+     *
+     * @param RateInterface $rate
+     * @param array $criteria
+     * @return bool
+     */
+    protected function matches(RateInterface $rate, array $criteria) {
+
+        if (isset($criteria['currencyCode']) && $criteria['currencyCode'] != $rate->getCurrencyCode()) {
+            return false;
+        }
+
+        if (isset($criteria['currencyCodes']) && !in_array($rate->getCurrencyCode(), $criteria['currencyCodes'])) {
+            return false;
+        }
+
+        if (isset($criteria['dateFrom']) && $criteria['dateFrom'] <= $rate->getDate()) {
+            return false;
+        }
+
+        if (isset($criteria['dateTo']) && $criteria['dateTo'] >= $rate->getDate()) {
+            return false;
+        }
+
+        if (isset($criteria['onDate']) && $criteria['onDate']->format('Y-m-d') != $rate->getDate()->format('Y-m-d')) {
+            return false;
+        }
+
+        if (isset($criteria['rateType']) && $criteria['rateType'] != $rate->getRateType()) {
+            return false;
+        }
+
+        if (isset($criteria['rateTypes']) && !in_array($rate->getRateType(), $criteria['rateTypes'])) {
+            return false;
+        }
+
+        if (isset($criteria['source']) && $criteria['source'] != $rate->getSourceName()) {
+            return false;
+        }
+
+        if (isset($criteria['sources']) && !in_array($rate->getSourceName(), $criteria['sources'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Load rates from file.
+     */
+    protected function load()
+    {
+        $this->rates = array();
+        $this->latest = array();
+
+        $handle = fopen($this->pathToFile, 'r');
+
+        if ($handle) {
+
+            while (($line = fgets($handle)) !== false) {
+                $data = json_decode($line, true);
+
+                $rate = new Rate(
+                    $data['sourceName'],
+                    $data['value'],
+                    $data['currencyCode'],
+                    $data['rateType'],
+                    \DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
+                    $data['baseCurrencyCode']
+                );
+
+                $this->rates[$this->getRateKey($rate)] = $rate;
+
+                $latestKey = sprintf('%s_%s', $rate->getCurrencyCode(), $rate->getRateType());
+
+                if (!isset($this->latest[$latestKey]) || ($this->latest[$latestKey]->getDate() < $rate->getDate())) {
+                    $this->latest[$latestKey] = $rate;
+                }
+            }
+
+            fclose($handle);
+
+        } else {
+            throw new \RuntimeException(sprintf('Error opening file on path "%s".', $this->pathToFile));
+        }
+    }
+
+    protected function getRateKey(RateInterface $rate)
+    {
+        return str_replace(array(
+            $rate->getCurrencyCode(),
+            $rate->getDate()->format('Y-m-d'),
+            $rate->getRateType()
+        ), array(
+            '%currency_code%',
+            '%date%',
+            '%rate_type%'
+        ), self::RATE_KEY_FORMAT);
     }
 }

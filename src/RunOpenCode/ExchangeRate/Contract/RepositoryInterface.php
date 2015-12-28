@@ -5,11 +5,18 @@ namespace RunOpenCode\ExchangeRate\Contract;
 interface RepositoryInterface
 {
     /**
-     * Persist rates. If rates exist
+     * Persist rates. If rates already exists, they gets updated.
      *
-     * @param RateInterface[] $rates
+     * @param RateInterface[] $rates Rates to save.
      */
     public function save(array $rates);
+
+    /**
+     * Delete rates.
+     *
+     * @param RateInterface[] $rates Rates to delete.
+     */
+    public function delete(array $rates);
 
     /**
      * Check if exchange rate for currency is available on given date.
@@ -19,7 +26,7 @@ interface RepositoryInterface
      * @param string $rateType Type of rate.
      * @return bool
      */
-    public function has($currencyCode, $date = null, $rateType = 'default');
+    public function has($currencyCode, \DateTime $date = null, $rateType = 'default');
 
     /**
      * Get rate for currency on given date.
@@ -29,7 +36,7 @@ interface RepositoryInterface
      * @param string $rateType Type of rate.
      * @return RateInterface
      */
-    public function get($currencyCode, $date = null, $rateType = 'default');
+    public function get($currencyCode, \DateTime $date = null, $rateType = 'default');
 
     /**
      * Get latest available rate.
