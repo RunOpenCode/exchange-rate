@@ -6,16 +6,34 @@ use RunOpenCode\ExchangeRate\Contract\RateInterface;
 
 class Rate implements RateInterface
 {
+    /**
+     * @var string
+     */
     protected $sourceName;
 
+    /**
+     * @var float
+     */
     protected $value;
 
+    /**
+     * @var string
+     */
     protected $currencyCode;
 
+    /**
+     * @var string
+     */
     protected $rateType;
 
+    /**
+     * @var \DateTime
+     */
     protected $date;
 
+    /**
+     * @var string
+     */
     protected $baseCurrencyCode;
 
     public function __construct($sourceName, $value, $currencyCode, $rateType, $date, $baseCurrencyCode)
@@ -25,7 +43,7 @@ class Rate implements RateInterface
         $this->currencyCode = $currencyCode;
         $this->rateType = $rateType;
         $this->baseCurrencyCode = $baseCurrencyCode;
-        $this->date =  (is_numeric($date)) ? date_timestamp_set(new \DateTime(), $date) : clone $date;;
+        $this->date =  (is_numeric($date)) ? date_timestamp_set(new \DateTime(), $date) : clone $date;
     }
 
     /**

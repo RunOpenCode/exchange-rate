@@ -4,23 +4,40 @@ namespace RunOpenCode\ExchangeRate;
 
 use Psr\Log\LoggerAwareTrait;
 use RunOpenCode\ExchangeRate\Contract\ManagerInterface;
+use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
+use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 
 class Manager implements ManagerInterface
 {
     use LoggerAwareTrait;
 
+    /**
+     * @var RepositoryInterface
+     */
     protected $repository;
 
+    /**
+     * @var SourceInterface[]
+     */
     protected $sources;
 
-    protected $settings;
+    /**
+     * @var ProcessorInterface[]
+     */
+    protected $processors;
 
-    public function __construct(RepositoryInterface $repository, array $sources, array $settings)
+    /**
+     * @var RateConfiguration[]
+     */
+    protected $rateConfigurations;
+
+    public function __construct($baseCurrency, RepositoryInterface $repository, array $sources, array $processors, array $rateConfigurations)
     {
         $this->repository = $repository;
+        $this->rateConfigurations = $rateConfigurations;
         $this->sources = $sources;
-        $this->settings = $settings;
+        $this->processors = $processors;
     }
 
     /**
@@ -28,7 +45,7 @@ class Manager implements ManagerInterface
      */
     public function has($currencyCode, $date = null, $rateType = 'default')
     {
-        // TODO: Implement has() method.
+        return $this->repository->has($currencyCode, $date, $rateType);
     }
 
     /**
@@ -36,7 +53,7 @@ class Manager implements ManagerInterface
      */
     public function get($currencyCode, $date = null, $rateType = 'default')
     {
-        // TODO: Implement get() method.
+        return $this->repository->get($currencyCode, $date, $rateType);
     }
 
     /**
@@ -44,7 +61,7 @@ class Manager implements ManagerInterface
      */
     public function latest($currencyCode, $rateType = 'default')
     {
-        // TODO: Implement latest() method.
+      return $this->repository->latest($currencyCode, $rateType);
     }
 
     /**
@@ -52,6 +69,14 @@ class Manager implements ManagerInterface
      */
     public function fetch($source = null, $date = null)
     {
-        // TODO: Implement fetch() method.
+        if (is_null($source)) {
+            $sources = $this->sources;
+        } else {
+            $source = is_array($source) ? $source : array($source);
+
+            foreach ($source as $name) {
+
+            }
+        }
     }
 }
