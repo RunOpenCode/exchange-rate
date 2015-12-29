@@ -10,7 +10,6 @@ use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
-use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
 
 class Manager implements ManagerInterface
