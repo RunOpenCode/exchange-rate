@@ -4,7 +4,6 @@ namespace RunOpenCode\ExchangeRate\Registry;
 
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
-use Traversable;
 
 final class SourcesRegistry implements SourcesRegistryInterface
 {

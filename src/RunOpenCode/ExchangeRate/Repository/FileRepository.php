@@ -64,11 +64,7 @@ class FileRepository implements RepositoryInterface
             $this->rates[sprintf('%s_%s_%s', $rate->getCurrencyCode(), $rate->getDate()->format('Y-m-d'), $rate->getRateType())] = $rate;
         }
 
-        usort($this->rates, function($rate1, $rate2) {
-            /**
-             * @var RateInterface $rate1
-             * @var RateInterface $rate2
-             */
+        usort($this->rates, function(RateInterface $rate1, RateInterface $rate2) {
             return ($rate1->getDate() > $rate2->getDate()) ? -1 : 1;
         });
 
