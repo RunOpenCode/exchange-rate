@@ -56,9 +56,7 @@ class Manager implements ManagerInterface
      */
     public function has($currencyCode, $date = null, $rateType = 'default')
     {
-        if (!CurrencyCode::exists($currencyCode)) {
-            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
-        }
+        CurrencyCode::validate($currencyCode);
 
         return $this->repository->has($currencyCode, $date, $rateType);
     }
@@ -68,9 +66,7 @@ class Manager implements ManagerInterface
      */
     public function get($currencyCode, $date = null, $rateType = 'default')
     {
-        if (!CurrencyCode::exists($currencyCode)) {
-            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
-        }
+        CurrencyCode::validate($currencyCode);
 
         return $this->repository->get($currencyCode, $date, $rateType);
     }
@@ -80,9 +76,7 @@ class Manager implements ManagerInterface
      */
     public function latest($currencyCode, $rateType = 'default')
     {
-        if (!CurrencyCode::exists($currencyCode)) {
-            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
-        }
+        CurrencyCode::validate($currencyCode);
 
         return $this->repository->latest($currencyCode, $rateType);
     }

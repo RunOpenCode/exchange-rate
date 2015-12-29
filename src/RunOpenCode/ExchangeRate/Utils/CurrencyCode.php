@@ -2,6 +2,8 @@
 
 namespace RunOpenCode\ExchangeRate\Utils;
 
+use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
+
 final class CurrencyCode
 {
     private function __construct() { }
@@ -134,6 +136,13 @@ final class CurrencyCode
     public static function exists($currencyCode)
     {
         return array_key_exists($currencyCode, self::$codes);
+    }
+
+    public static function validate($currencyCode)
+    {
+        if (!self::exists($currencyCode)) {
+            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
+        }
     }
 }
 

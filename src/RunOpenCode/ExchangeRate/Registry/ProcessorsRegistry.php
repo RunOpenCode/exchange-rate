@@ -2,7 +2,7 @@
 
 namespace RunOpenCode\ExchangeRate\Registry;
 
-use RunOpenCode\Backup\Contract\ProcessorInterface;
+use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorsRegistryInterface;
 
 final class ProcessorsRegistry implements ProcessorsRegistryInterface

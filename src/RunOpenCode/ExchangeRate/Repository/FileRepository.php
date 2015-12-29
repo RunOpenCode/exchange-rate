@@ -55,7 +55,7 @@ class FileRepository implements RepositoryInterface
      */
     public function save(array $rates)
     {
-        if (!$this->rates) {
+        if (is_null($this->rates)) {
             $this->load();
         }
 
@@ -100,7 +100,7 @@ class FileRepository implements RepositoryInterface
      */
     public function delete(array $rates)
     {
-        if (!$this->rates) {
+        if (is_null($this->rates)) {
             $this->load();
         }
 
@@ -119,7 +119,7 @@ class FileRepository implements RepositoryInterface
      */
     public function has($currencyCode, \DateTime $date = null, $rateType = 'default')
     {
-        if (!$this->rates) {
+        if (is_null($this->rates)) {
             $this->load();
         }
 
@@ -143,7 +143,7 @@ class FileRepository implements RepositoryInterface
      */
     public function get($currencyCode, \DateTime $date = null, $rateType = 'default')
     {
-        if (!$this->rates) {
+        if (is_null($this->rates)) {
             $this->load();
         }
 
@@ -167,7 +167,7 @@ class FileRepository implements RepositoryInterface
      */
     public function latest($currencyCode, $rateType = 'default')
     {
-        if (!$this->rates) {
+        if (is_null($this->rates)) {
             $this->load();
         }
 
@@ -189,7 +189,7 @@ class FileRepository implements RepositoryInterface
      */
     public function all(array $criteria = array())
     {
-        if (!$this->rates) {
+        if (is_null($this->rates)) {
             $this->load();
         }
 
