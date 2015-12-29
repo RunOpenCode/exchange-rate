@@ -11,104 +11,114 @@ final class RateFilter
     public static function matches(RateInterface $rate, array $criteria)
     {
         return
-            self::matchesCurrencyCode($rate, $criteria)
+            self::matchesCurrencyCodes($rate, self::extractCurrencyCodes($criteria))
             &&
-            self::matchesCurrencyCodes($rate, $criteria)
+            self::matchesSources($rate, self::extractSources($criteria))
             &&
-            self::matchesDateFrom($rate, $criteria)
+            self::matchesRateTypes($rate, self::extractRateTypes($criteria))
             &&
-            self::matchesDateTo($rate, $criteria)
+            self::matchesOnDate($rate, self::extractOnDate($criteria))
             &&
-            self::matchesOnDate($rate, $criteria)
+            self::matchesDateFrom($rate, self::extractDateFrom($criteria))
             &&
-            self::matchesRateType($rate, $criteria)
-            &&
-            self::matchesRateTypes($rate, $criteria)
-            &&
-            self::matchesSource($rate, $criteria)
-            &&
-            self::matchesSources($rate, $criteria)
+            self::matchesDateTo($rate, self::extractDateTo($criteria))
             ;
     }
 
-    public static function matchesCurrencyCode(RateInterface $rate, array $criteria)
+    public static function matchesCurrencyCodes(RateInterface $rate, $currencyCodes)
     {
-        if (isset($criteria['currencyCode']) && $criteria['currencyCode'] != $rate->getCurrencyCode()) {
-            return false;
+        if (!is_array($currencyCodes)) {
+            $currencyCodes = array($currencyCodes);
         }
 
-        return true;
-    }
-
-    public static function matchesCurrencyCodes(RateInterface $rate, array $criteria)
-    {
-        if (isset($criteria['currencyCodes']) && !in_array($rate->getCurrencyCode(), $criteria['currencyCodes'])) {
-            return false;
+        if (empty($currencyCodes)) {
+            return true;
         }
 
-        return true;
+        return in_array($rate->getCurrencyCode(), $currencyCodes);
     }
 
-    public static function matchesDateFrom(RateInterface $rate, array $criteria)
+    public static function matchesSources(RateInterface $rate, $sources)
     {
-        if (isset($criteria['dateFrom']) && $criteria['dateFrom'] <= $rate->getDate()) {
-            return false;
+        if (!is_array($sources)) {
+            $sources = array($sources);
         }
 
-        return true;
-    }
-
-    public static function matchesDateTo(RateInterface $rate, array $criteria)
-    {
-        if (isset($criteria['dateTo']) && $criteria['dateTo'] >= $rate->getDate()) {
-            return false;
+        if (empty($sources)) {
+            return true;
         }
 
-        return true;
+        return in_array($rate->getSourceName(), $sources);
     }
 
-    public static function matchesOnDate(RateInterface $rate, array $criteria)
+    public static function matchesRateTypes(RateInterface $rate, $rateTypes)
     {
-        if (isset($criteria['onDate']) && $criteria['onDate']->format('Y-m-d') != $rate->getDate()->format('Y-m-d')) {
-            return false;
+        if (!is_array($rateTypes)) {
+            $rateTypes = array($rateTypes);
         }
 
-        return true;
-    }
-
-    public static function matchesRateType(RateInterface $rate, array $criteria)
-    {
-        if (isset($criteria['rateType']) && $criteria['rateType'] != $rate->getRateType()) {
-            return false;
+        if (empty($rateTypes)) {
+            return true;
         }
 
-        return true;
+        return in_array($rate->getRateType(), $rateTypes);
     }
 
-    public static function matchesRateTypes(RateInterface $rate, array $criteria)
+    public static function matchesDateFrom(RateInterface $rate, \DateTime $dateFrom = null)
     {
-        if (isset($criteria['rateTypes']) && !in_array($rate->getRateType(), $criteria['rateTypes'])) {
-            return false;
+        if (is_null($dateFrom)) {
+            return true;
         }
 
-        return true;
+        return $dateFrom <= $rate->getDate();
     }
 
-    public static function matchesSource(RateInterface $rate, array $criteria)
+    public static function matchesDateTo(RateInterface $rate, \DateTime $dateTo = null)
     {
-        if (isset($criteria['source']) && $criteria['source'] != $rate->getSourceName()) {
-            return false;
+        if (is_null($dateTo)) {
+            return true;
         }
 
-        return true;
+        return $dateTo >= $rate->getDate();
     }
 
-    public static function matchesSources(RateInterface $rate, array $criteria)
+    public static function matchesOnDate(RateInterface $rate, \DateTime $date = null)
     {
-        if (isset($criteria['sources']) && !in_array($rate->getSourceName(), $criteria['sources'])) {
-            return false;
+        if (is_null($date)) {
+            return true;
         }
 
-        return true;
+        return $date->format('Y-m-d') == $rate->getDate()->format('Y-m-d');
     }
+
+    private static function extractSources(array $criteria)
+    {
+        return !empty($criteria['currencyCode']) ? array($criteria['currencyCode']) : !empty($criteria['currencyCodes']) ? $criteria['currencyCodes'] : array();
+    }
+
+    private static function extractCurrencyCodes(array $criteria)
+    {
+        return  !empty($criteria['source']) ? array($criteria['source']) : !empty($criteria['sources']) ? $criteria['sources'] : array();
+    }
+
+    private static function extractRateTypes(array $criteria)
+    {
+        return  !empty($criteria['rateType']) ? array($criteria['rateType']) : !empty($criteria['rateTypes']) ? $criteria['rateTypes'] : array();
+    }
+
+    private static function extractOnDate(array $criteria)
+    {
+        return (!empty($criteria['onDate'])) ? $criteria['onDate'] : null;
+    }
+
+    private static function extractDateFrom(array $criteria)
+    {
+        return (!empty($criteria['dateFrom'])) ? $criteria['dateFrom'] : null;
+    }
+
+    private static function extractDateTo(array $criteria)
+    {
+        return (!empty($criteria['dateTo'])) ? $criteria['dateTo'] : null;
+    }
+
 }
