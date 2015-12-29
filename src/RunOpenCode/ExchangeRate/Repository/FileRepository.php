@@ -48,6 +48,8 @@ class FileRepository implements RepositoryInterface
         if (!is_writable($this->pathToFile)) {
             throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be writeable.', $this->pathToFile));
         }
+
+        $this->load();
     }
 
     /**
@@ -55,10 +57,6 @@ class FileRepository implements RepositoryInterface
      */
     public function save(array $rates)
     {
-        if (is_null($this->rates)) {
-            $this->load();
-        }
-
         /**
          * @var RateInterface $rate
          */
@@ -100,10 +98,6 @@ class FileRepository implements RepositoryInterface
      */
     public function delete(array $rates)
     {
-        if (is_null($this->rates)) {
-            $this->load();
-        }
-
         /**
          * @var RateInterface $rate
          */
@@ -119,10 +113,6 @@ class FileRepository implements RepositoryInterface
      */
     public function has($currencyCode, \DateTime $date = null, $rateType = 'default')
     {
-        if (is_null($this->rates)) {
-            $this->load();
-        }
-
         if (is_null($date)) {
             $date = new \DateTime('now');
         }
@@ -143,10 +133,6 @@ class FileRepository implements RepositoryInterface
      */
     public function get($currencyCode, \DateTime $date = null, $rateType = 'default')
     {
-        if (is_null($this->rates)) {
-            $this->load();
-        }
-
         if (is_null($date)) {
             $date = new \DateTime('now');
         }
@@ -167,10 +153,6 @@ class FileRepository implements RepositoryInterface
      */
     public function latest($currencyCode, $rateType = 'default')
     {
-        if (is_null($this->rates)) {
-            $this->load();
-        }
-
         /**
          * @var RateInterface $rate
          */
@@ -189,10 +171,6 @@ class FileRepository implements RepositoryInterface
      */
     public function all(array $criteria = array())
     {
-        if (is_null($this->rates)) {
-            $this->load();
-        }
-
         if (count($criteria) == 0) {
             return $this->rates;
         } else {
@@ -214,6 +192,8 @@ class FileRepository implements RepositoryInterface
 
     /**
      * Load rates from file.
+     *
+     * @return RateInterface[]
      */
     protected function load()
     {
@@ -250,6 +230,8 @@ class FileRepository implements RepositoryInterface
         } else {
             throw new \RuntimeException(sprintf('Error opening file on path "%s".', $this->pathToFile));
         }
+
+        return $this->rates;
     }
 
     protected function getRateKey(RateInterface $rate)
