@@ -5,6 +5,7 @@ namespace RunOpenCode\ExchangeRate\Repository;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
+use RunOpenCode\ExchangeRate\Utils\RateFilter;
 use RunOpenCode\ExchangeRateBundle\Model\Rate;
 
 class FileRepository implements RepositoryInterface
@@ -202,61 +203,13 @@ class FileRepository implements RepositoryInterface
              */
             foreach ($this->rates as $rate) {
 
-                if ($this->matches($rate, $criteria)) {
+                if (RateFilter::matches($rate, $criteria)) {
                     $result[] = $rate;
                 }
             }
 
             return $result;
         }
-    }
-
-    /**
-     * Check if rate matches filter criteria.
-     *
-     * @param RateInterface $rate
-     * @param array $criteria
-     * @return bool
-     */
-    protected function matches(RateInterface $rate, array $criteria) {
-
-        if (isset($criteria['currencyCode']) && $criteria['currencyCode'] != $rate->getCurrencyCode()) {
-            return false;
-        }
-
-        if (isset($criteria['currencyCodes']) && !in_array($rate->getCurrencyCode(), $criteria['currencyCodes'])) {
-            return false;
-        }
-
-        if (isset($criteria['dateFrom']) && $criteria['dateFrom'] <= $rate->getDate()) {
-            return false;
-        }
-
-        if (isset($criteria['dateTo']) && $criteria['dateTo'] >= $rate->getDate()) {
-            return false;
-        }
-
-        if (isset($criteria['onDate']) && $criteria['onDate']->format('Y-m-d') != $rate->getDate()->format('Y-m-d')) {
-            return false;
-        }
-
-        if (isset($criteria['rateType']) && $criteria['rateType'] != $rate->getRateType()) {
-            return false;
-        }
-
-        if (isset($criteria['rateTypes']) && !in_array($rate->getRateType(), $criteria['rateTypes'])) {
-            return false;
-        }
-
-        if (isset($criteria['source']) && $criteria['source'] != $rate->getSourceName()) {
-            return false;
-        }
-
-        if (isset($criteria['sources']) && !in_array($rate->getSourceName(), $criteria['sources'])) {
-            return false;
-        }
-
-        return true;
     }
 
     /**

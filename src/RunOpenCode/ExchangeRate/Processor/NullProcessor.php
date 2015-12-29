@@ -5,6 +5,7 @@ namespace RunOpenCode\ExchangeRate\Processor;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
+use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
 
 class NullProcessor implements ProcessorInterface
 {
@@ -13,7 +14,7 @@ class NullProcessor implements ProcessorInterface
     /**
      * {@inheritdoc}
      */
-    public function process($baseCurrencyCode, array $rateConfigurations, array $rates)
+    public function process($baseCurrencyCode, RatesConfigurationRegistryInterface $configurations, array $rates)
     {
         return $rates;
     }
