@@ -37,8 +37,8 @@ class FileRepository implements RepositoryInterface
     {
         $this->pathToFile = $pathToFile;
 
-        if (!file_exists($this->pathToFile)) {
-            touch($this->pathToFile);
+        if (!file_exists($this->pathToFile) && !(mkdir(dirname($this->pathToFile), 0777, true) && touch($this->pathToFile))) {
+            throw new \RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
         }
 
         if (!is_readable($this->pathToFile)) {
