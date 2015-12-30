@@ -23,6 +23,8 @@ final class SourcesRegistry implements SourcesRegistryInterface
         if ($this->has($source->getName())) {
             throw new \RuntimeException(sprintf('Source "%s" is already registered.', $source->getName()));
         }
+
+        $this->sources[$source->getName()] = $source;
     }
 
     public function has($name)
