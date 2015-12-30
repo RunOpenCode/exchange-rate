@@ -2,7 +2,6 @@
 
 namespace RunOpenCode\ExchangeRate;
 
-use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
 
 class Configuration
@@ -29,11 +28,7 @@ class Configuration
 
     public function __construct($currencyCode, $rateType, $source, array $extraConfiguration = array())
     {
-        if (!CurrencyCode::exists($currencyCode)) {
-            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
-        }
-
-        $this->currencyCode = $currencyCode;
+        $this->currencyCode = CurrencyCode::validate($currencyCode);
         $this->rateType = $rateType;
         $this->source = $source;
         $this->extraConfiguration = $extraConfiguration;

@@ -80,7 +80,9 @@ class FileRepository implements RepositoryInterface
                     'currencyCode' => $rate->getCurrencyCode(),
                     'rateType' => $rate->getRateType(),
                     'date' => $rate->getDate()->format('Y-m-d H:i:s'),
-                    'baseCurrencyCode' => $rate->getBaseCurrencyCode()
+                    'baseCurrencyCode' => $rate->getBaseCurrencyCode(),
+                    'createdAt' => $rate->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'modifiedAt' => $rate->getModifiedAt()->format('Y-m-d H:i:s')
                 )) . "\n";
         }
 
@@ -209,7 +211,9 @@ class FileRepository implements RepositoryInterface
                     $data['currencyCode'],
                     $data['rateType'],
                     \DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
-                    $data['baseCurrencyCode']
+                    $data['baseCurrencyCode'],
+                    \DateTime::createFromFormat('Y-m-d H:i:s', $data['createdAt']),
+                    \DateTime::createFromFormat('Y-m-d H:i:s', $data['modifiedAt'])
                 );
 
                 $this->rates[$this->getRateKey($rate)] = $rate;

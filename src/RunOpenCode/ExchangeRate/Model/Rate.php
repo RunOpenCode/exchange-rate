@@ -3,6 +3,7 @@
 namespace RunOpenCode\ExchangeRateBundle\Model;
 
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
+use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
 
 class Rate implements RateInterface
 {
@@ -36,14 +37,32 @@ class Rate implements RateInterface
      */
     protected $baseCurrencyCode;
 
-    public function __construct($sourceName, $value, $currencyCode, $rateType, $date, $baseCurrencyCode)
+    /**
+     * @var \DateTime
+     */
+    protected $createdAt;
+
+    /**
+     * @var \DateTime
+     */
+    protected $modifiedAt;
+
+    public function __construct($sourceName, $value, $currencyCode, $rateType, $date, $baseCurrencyCode, $createdAt = null, $modifiedAt = null)
     {
         $this->sourceName = $sourceName;
         $this->value = $value;
-        $this->currencyCode = $currencyCode;
+        $this->currencyCode = CurrencyCode::validate($currencyCode);
         $this->rateType = $rateType;
-        $this->baseCurrencyCode = $baseCurrencyCode;
-        $this->date =  (is_numeric($date)) ? date_timestamp_set(new \DateTime(), $date) : clone $date;
+        $this->baseCurrencyCode = CurrencyCode::validate($baseCurrencyCode);
+
+        $processDate = function($arg) {
+            $arg = (is_null($arg)) ? new \DateTime('now') : $arg;
+            return (is_numeric($arg)) ? date_timestamp_set(new \DateTime(), $arg) : clone $arg;
+        };
+
+        $this->date = $processDate($date);
+        $this->createdAt = $processDate($createdAt);
+        $this->modifiedAt = $processDate($modifiedAt);
     }
 
     /**
@@ -92,5 +111,21 @@ class Rate implements RateInterface
     public function getBaseCurrencyCode()
     {
         return $this->baseCurrencyCode;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCreatedAt()
+    {
+        return clone $this->createdAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getModifiedAt()
+    {
+        return clone $this->modifiedAt;
     }
 }

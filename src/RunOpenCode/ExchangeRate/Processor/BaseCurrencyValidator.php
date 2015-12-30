@@ -18,9 +18,7 @@ class BaseCurrencyValidator implements ProcessorInterface
      */
     public function process($baseCurrencyCode, RatesConfigurationRegistryInterface $configurations, array $rates)
     {
-        if (!CurrencyCode::exists($baseCurrencyCode)) {
-            throw new \RuntimeException(sprintf('Unknown base currency code "%s".', $baseCurrencyCode));
-        }
+        $baseCurrencyCode = CurrencyCode::validate($baseCurrencyCode);
 
         /**
          * @var RateInterface $rate

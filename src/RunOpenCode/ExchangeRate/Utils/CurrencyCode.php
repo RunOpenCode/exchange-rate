@@ -140,9 +140,13 @@ final class CurrencyCode
 
     public static function validate($currencyCode)
     {
+        $currencyCode = trim(strtoupper($currencyCode));
+
         if (!self::exists($currencyCode)) {
             throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
         }
+
+        return $currencyCode;
     }
 }
 

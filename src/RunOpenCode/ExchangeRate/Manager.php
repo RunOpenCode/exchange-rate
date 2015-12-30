@@ -43,7 +43,7 @@ class Manager implements ManagerInterface
 
     public function __construct($baseCurrency, RepositoryInterface $repository, SourcesRegistryInterface $sources, ProcessorsRegistryInterface $processors, RatesConfigurationRegistryInterface $configurations)
     {
-        $this->baseCurrency = $baseCurrency;
+        $this->baseCurrency = CurrencyCode::validate($baseCurrency);
         $this->repository = $repository;
         $this->configurations = $configurations;
         $this->sources = $sources;
@@ -55,9 +55,7 @@ class Manager implements ManagerInterface
      */
     public function has($currencyCode, $date = null, $rateType = 'default')
     {
-        CurrencyCode::validate($currencyCode);
-
-        return $this->repository->has($currencyCode, $date, $rateType);
+        return $this->repository->has(CurrencyCode::validate($currencyCode), $date, $rateType);
     }
 
     /**
@@ -65,9 +63,7 @@ class Manager implements ManagerInterface
      */
     public function get($currencyCode, $date = null, $rateType = 'default')
     {
-        CurrencyCode::validate($currencyCode);
-
-        return $this->repository->get($currencyCode, $date, $rateType);
+        return $this->repository->get(CurrencyCode::validate($currencyCode), $date, $rateType);
     }
 
     /**
@@ -75,9 +71,7 @@ class Manager implements ManagerInterface
      */
     public function latest($currencyCode, $rateType = 'default')
     {
-        CurrencyCode::validate($currencyCode);
-
-        return $this->repository->latest($currencyCode, $rateType);
+        return $this->repository->latest(CurrencyCode::validate($currencyCode), $rateType);
     }
 
     /**

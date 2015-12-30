@@ -52,4 +52,18 @@ interface RateInterface
      * @return string
      */
     public function getBaseCurrencyCode();
+
+    /**
+     * Get date when rate was created.
+     *
+     * @return \DateTime
+     */
+    public function getCreatedAt();
+
+    /**
+     * Get date when rate was modified.
+     *
+     * @return \DateTime
+     */
+    public function getModifiedAt();
 }
