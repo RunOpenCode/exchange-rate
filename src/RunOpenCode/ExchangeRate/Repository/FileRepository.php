@@ -36,19 +36,7 @@ class FileRepository implements RepositoryInterface
     public function __construct($pathToFile)
     {
         $this->pathToFile = $pathToFile;
-
-        if (!file_exists($this->pathToFile) && !(mkdir(dirname($this->pathToFile), 0777, true) && touch($this->pathToFile))) {
-            throw new \RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
-        }
-
-        if (!is_readable($this->pathToFile)) {
-            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be readable.', $this->pathToFile));
-        }
-
-        if (!is_writable($this->pathToFile)) {
-            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be writeable.', $this->pathToFile));
-        }
-
+        $this->initStorage();
         $this->load();
     }
 
@@ -245,5 +233,24 @@ class FileRepository implements RepositoryInterface
             '%date%',
             '%rate_type%'
         ), self::RATE_KEY_FORMAT);
+    }
+
+    protected function initStorage()
+    {
+        if (!file_exists(dirname($this->pathToFile)) && !mkdir(dirname($this->pathToFile), 0777, true)) {
+            throw new \RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
+        }
+
+        if (!file_exists($this->pathToFile) && !(touch($this->pathToFile) && chmod($this->pathToFile, 0777))) {
+            throw new \RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
+        }
+
+        if (!is_readable($this->pathToFile)) {
+            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be readable.', $this->pathToFile));
+        }
+
+        if (!is_writable($this->pathToFile)) {
+            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be writeable.', $this->pathToFile));
+        }
     }
 }
