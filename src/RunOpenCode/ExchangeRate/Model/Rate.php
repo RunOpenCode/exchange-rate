@@ -1,6 +1,6 @@
 <?php
 
-namespace RunOpenCode\ExchangeRateBundle\Model;
+namespace RunOpenCode\ExchangeRate\Model;
 
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCode;

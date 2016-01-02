@@ -77,9 +77,26 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
+    public function today($currencyCode, $rateType = 'default')
+    {
+        $currencyCode = CurrencyCode::validate($currencyCode);
+        $today = new \DateTime('now');
+
+        if ($this->has($currencyCode, $rateType, $today)) {
+            return $this->get($currencyCode, $rateType, $today);
+        }
+
+        if ((int)$today->format('N') >= 6) {
+            $today = new \DateTime('last Friday');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function fetch($sourceName = null, $date = null)
     {
-        $sources = $this->sources;
+        $sources = $this->sources->all();
 
         if (!is_null($sourceName)) {
             $sources = array();

@@ -2,7 +2,7 @@
 
 namespace RunOpenCode\ExchangeRate\Contract;
 
-interface RepositoryInterface
+interface RepositoryInterface extends \Countable
 {
     /**
      * Persist rates. If rates already exists, they gets updated.
