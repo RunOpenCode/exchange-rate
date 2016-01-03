@@ -6,7 +6,7 @@ use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 use RunOpenCode\ExchangeRate\Utils\RateFilter;
-use RunOpenCode\ExchangeRateBundle\Model\Rate;
+use RunOpenCode\ExchangeRate\Model\Rate;
 
 class FileRepository implements RepositoryInterface
 {
@@ -99,19 +99,18 @@ class FileRepository implements RepositoryInterface
      */
     public function has($currencyCode, \DateTime $date = null, $rateType = 'default')
     {
-        if (is_null($date)) {
+        if ($date === null) {
             $date = new \DateTime('now');
         }
 
-        return array_key_exists(str_replace(array(
-            $currencyCode,
-            $date->format('Y-m-d'),
-            $rateType
-        ), array(
-            '%currency_code%',
-            '%date%',
-            '%rate_type%'
-        ), self::RATE_KEY_FORMAT), $this->rates);
+        return array_key_exists(
+            str_replace(
+                array('%currency_code%', '%date%', '%rate_type%'),
+                array($currencyCode, $date->format('Y-m-d'), $rateType),
+                self::RATE_KEY_FORMAT
+            ),
+            $this->rates
+        );
     }
 
     /**
@@ -119,19 +118,21 @@ class FileRepository implements RepositoryInterface
      */
     public function get($currencyCode, \DateTime $date = null, $rateType = 'default')
     {
-        if (is_null($date)) {
+        if ($date === null) {
             $date = new \DateTime('now');
         }
 
-        return $this->rates[str_replace(array(
-            $currencyCode,
-            $date->format('Y-m-d'),
-            $rateType
-        ), array(
-            '%currency_code%',
-            '%date%',
-            '%rate_type%'
-        ), self::RATE_KEY_FORMAT)];
+        if ($this->has($currencyCode, $date, $rateType)) {
+            return $this->rates[
+                str_replace(
+                    array('%currency_code%', '%date%', '%rate_type%'),
+                    array($currencyCode, $date->format('Y-m-d'), $rateType),
+                    self::RATE_KEY_FORMAT
+                )
+            ];
+        }
+
+        throw new ExchangeRateException(sprintf('Could not fetch rate for rate currency code "%s" and rate type "%s" on date "%s".', $currencyCode, $rateType, $date->format('Y-m-d')));
     }
 
     /**
@@ -144,7 +145,7 @@ class FileRepository implements RepositoryInterface
          */
         foreach ($this->rates as $rate) {
 
-            if ($rate->getCurrencyCode() == $currencyCode && $rate->getRateType() == $rateType) {
+            if ($rate->getCurrencyCode() === $currencyCode && $rate->getRateType() === $rateType) {
                 return $rate;
             }
         }
@@ -174,6 +175,14 @@ class FileRepository implements RepositoryInterface
 
             return $result;
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function count()
+    {
+        return count($this->rates);
     }
 
     /**
@@ -224,19 +233,16 @@ class FileRepository implements RepositoryInterface
 
     protected function getRateKey(RateInterface $rate)
     {
-        return str_replace(array(
-            $rate->getCurrencyCode(),
-            $rate->getDate()->format('Y-m-d'),
-            $rate->getRateType()
-        ), array(
-            '%currency_code%',
-            '%date%',
-            '%rate_type%'
-        ), self::RATE_KEY_FORMAT);
+        return str_replace(
+            array('%currency_code%', '%date%', '%rate_type%'),
+            array($rate->getCurrencyCode(), $rate->getDate()->format('Y-m-d'), $rate->getRateType()),
+            self::RATE_KEY_FORMAT
+        );
     }
 
     protected function initStorage()
     {
+        /** @noinspection MkdirRaceConditionInspection */
         if (!file_exists(dirname($this->pathToFile)) && !mkdir(dirname($this->pathToFile), 0777, true)) {
             throw new \RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
         }

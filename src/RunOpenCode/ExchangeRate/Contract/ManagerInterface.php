@@ -3,6 +3,7 @@
 namespace RunOpenCode\ExchangeRate\Contract;
 
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
+use RunOpenCode\ExchangeRate\Exception\UnknownRateTypeException;
 
 interface ManagerInterface
 {
@@ -14,6 +15,7 @@ interface ManagerInterface
      * @param string $rateType Type of rate.
      * @return bool
      * @throws UnknownCurrencyCodeException
+     * @throws UnknownRateTypeException
      */
     public function has($currencyCode, $date = null, $rateType = 'default');
 
@@ -25,6 +27,7 @@ interface ManagerInterface
      * @param string $rateType Type of rate.
      * @return RateInterface
      * @throws UnknownCurrencyCodeException
+     * @throws UnknownRateTypeException
      */
     public function get($currencyCode, $date = null, $rateType = 'default');
 
@@ -35,8 +38,20 @@ interface ManagerInterface
      * @param string $rateType Type of rate.
      * @return RateInterface
      * @throws UnknownCurrencyCodeException
+     * @throws UnknownRateTypeException
      */
     public function latest($currencyCode, $rateType = 'default');
+
+    /**
+     * Get rate which ought to be used today.
+     *
+     * @param string $currencyCode Currency code for which exchange rate is required.
+     * @param string $rateType Type of rate.
+     * @return RateInterface
+     * @throws UnknownCurrencyCodeException
+     * @throws UnknownRateTypeException
+     */
+    public function today($currencyCode, $rateType = 'default');
 
     /**
      * Fetch rates from sources.
