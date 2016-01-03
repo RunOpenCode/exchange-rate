@@ -6,7 +6,7 @@ use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 use RunOpenCode\ExchangeRate\Utils\RateFilter;
-use RunOpenCode\ExchangeRateBundle\Model\Rate;
+use RunOpenCode\ExchangeRate\Model\Rate;
 
 class FileRepository implements RepositoryInterface
 {
