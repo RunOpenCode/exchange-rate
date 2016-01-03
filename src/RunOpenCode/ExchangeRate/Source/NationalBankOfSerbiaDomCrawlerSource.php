@@ -2,20 +2,21 @@
 
 namespace RunOpenCode\ExchangeRate\Source;
 
-use Goutte\Client;
+use Goutte\Client as GoutteClient;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Cookie\CookieJar;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 use RunOpenCode\ExchangeRate\Exception\UnknownRateTypeException;
-use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
-use RunOpenCode\ExchangeRateBundle\Model\Rate;
 use Symfony\Component\DomCrawler\Crawler;
 
 class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
 {
+    const SOURCE = 'http://www.nbs.rs/kursnaListaModul/naZeljeniDan.faces';
+
     use LoggerAwareTrait;
 
     private $cache;
@@ -48,7 +49,7 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
         if (array_key_exists($key = sprintf('%s_%s', $currencyCode, $rateType), $this->cache)) {
             return $this->cache[$key];
         } else {
-            //
+            // Baciti exception.
         }
 
     }
@@ -73,7 +74,9 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
     protected function validateCurrencyCode($currencyCode, $rateType)
     {
         $supports = array(
-            'default' => array(),
+            'default' => array(
+                'EUR'
+            ),
             'foreign_cache_buying',
             'foreign_cache_selling',
             'foreign_exchange_buying',
@@ -94,6 +97,11 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
      */
     protected function load(\DateTime $date)
     {
+        $guzzleClient = new GuzzleClient(array('cookies' => true));
+        $jar = new CookieJar;
+        $client = new GoutteClient();
+        $client->setClient($guzzleClient);
+
         $crawler = $this->getCrawler($date);
 
         // parsiranje
@@ -113,5 +121,59 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
         } catch (\Exception $e) {
             throw new SourceNotAvailableException(sprintf('Source not available on "%s".', $url), 0, $e);
         }
+    }
+
+    protected function getPostParams(\DateTime $date, $rateType)
+    {
+        return  array(
+            'index:brKursneListe:' => '',
+            'index:year' => $date->format('Y'),
+            'index:inputCalendar1' => $date->format('d/m/Y'),
+            'index:vrsta' => call_user_func(function($rateType) {
+                switch ($rateType) {
+                    case 'foreign_cache_buying':        // FALL TROUGH
+                    case 'foreign_cache_selling':
+                        return 1;
+                        break;
+                    case 'foreign_exchange_buying':     // FALL TROUGH
+                    case 'foreign_exchange_selling':
+                        return 2;
+                        break;
+                    default:
+                        return 3;
+                        break;
+                }
+            }, $rateType),
+            'index:prikaz' => 0,
+            'index:buttonShow' => 'Show',
+            'index' => 'index',
+            'com.sun.faces.VIEW' => null
+        );
+    }
+
+    protected function extractCsrfToken(GuzzleClient $guzzleClient, CookieJar $jar)
+    {
+        $response = $guzzleClient->request('GET', self::SOURCE, array('cookies' => $jar));
+        $crawler = new Crawler($response->getBody()->getContents());
+
+        $hiddens = $crawler->filter('input[type="hidden"]');
+
+        /**
+         * @var \DOMElement $hidden
+         */
+        foreach ($hiddens as $hidden) {
+
+            if ($hidden->getAttribute('id') === 'com.sun.faces.VIEW') {
+                return $hidden->getAttribute('value');
+            }
+        }
+
+        $exception = new \RuntimeException('FATAL ERROR: National Bank of Serbia changed it\'s API, unable to extract token.');
+
+        if ($this->logger) {
+            $this->logger->emergency($exception->getMessage());
+        }
+
+        throw $exception;
     }
 }
