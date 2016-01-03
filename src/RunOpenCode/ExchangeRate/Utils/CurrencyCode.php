@@ -130,7 +130,20 @@ final class CurrencyCode
         'VEF' => 'Venezuela Bolivar',
         'VND' => 'Viet Nam Dong',
         'YER' => 'Yemen Rial',
-        'ZWD' => 'Zimbabwe Dollar'
+        'ZWD' => 'Zimbabwe Dollar',
+        'KWD' => 'Kuwait Dinar',
+        'ATS' => 'Austrian Schilling',
+        'BEF' => 'Belgian Franc',
+        'FIM' => 'Finnish Markka',
+        'FRF' => 'French Franc',
+        'DEM' => 'German Mark',
+        'GRD' => '',
+        'IEP' => '',
+        'ITL' => '',
+        'LUF' => '',
+        'PTE' => '',
+        'ESP' => '',
+        'XDR' => ''
     );
 
     public static function exists($currencyCode)

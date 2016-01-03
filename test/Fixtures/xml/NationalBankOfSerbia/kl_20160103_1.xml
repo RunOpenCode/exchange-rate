@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Exchange_Rates_List>
+    <header>
+        <Copyright>Given the technical possibilities of the network, the National Bank of Serbia cannot warrant the completeness and reliability of the data and information presented. Only the data and information printed directly from the computers of the National Bank of Serbia (not via the network) are reliable, accurate and complete. The National Bank of Serbia is not liable for any damage arising from using the data from this website. Downloading, reproduction and distribution of files from the website is allowed by the National Bank of Serbia, so long as the content of such files is not changed and the source is always visibly specified. The National Bank of Serbia warns that making any unauthorized changes to the data on its website, deleting or destroying or making such data unavailable, or intentionally incurring damage, is prohibited and illegal. All rights retained by the National Bank of Serbia.</Copyright>
+        <No>252</No>
+        <Date>31.12.2015</Date>
+        <Type>FOREIGN EXCHANGE</Type>
+    </header>
+    <Item>
+        <Code>978</Code>
+        <Country>EMU</Country>
+        <Currency>EUR</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>121.2612</Buying_Rate>
+        <Selling_Rate>121.9910</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>36</Code>
+        <Country>Australia</Country>
+        <Currency>AUD</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>81.0461</Buying_Rate>
+        <Selling_Rate>81.5339</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>124</Code>
+        <Country>Canada</Country>
+        <Currency>CAD</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>79.9454</Buying_Rate>
+        <Selling_Rate>80.4266</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>156</Code>
+        <Country>China</Country>
+        <Currency>CNY</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>17.0805</Buying_Rate>
+        <Selling_Rate>17.1833</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>208</Code>
+        <Country>Denmark</Country>
+        <Currency>DKK</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>16.2483</Buying_Rate>
+        <Selling_Rate>16.3461</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>392</Code>
+        <Country>Japan</Country>
+        <Currency>JPY</Currency>
+        <Unit>100</Unit>
+        <Buying_Rate>92.1228</Buying_Rate>
+        <Selling_Rate>92.6772</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>578</Code>
+        <Country>Norway</Country>
+        <Currency>NOK</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>12.6140</Buying_Rate>
+        <Selling_Rate>12.6900</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>643</Code>
+        <Country>Russian Federation</Country>
+        <Currency>RUB</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>1.5087</Buying_Rate>
+        <Selling_Rate>1.5177</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>752</Code>
+        <Country>Sweden</Country>
+        <Currency>SEK</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>13.1824</Buying_Rate>
+        <Selling_Rate>13.2618</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>756</Code>
+        <Country>Switzerland</Country>
+        <Currency>CHF</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>112.1854</Buying_Rate>
+        <Selling_Rate>112.8606</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>826</Code>
+        <Country>United Kingdom</Country>
+        <Currency>GBP</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>164.4443</Buying_Rate>
+        <Selling_Rate>165.4339</Selling_Rate>
+    </Item>
+    <Item>
+        <Code>840</Code>
+        <Country>United States</Country>
+        <Currency>USD</Currency>
+        <Unit>1</Unit>
+        <Buying_Rate>110.9131</Buying_Rate>
+        <Selling_Rate>111.5805</Selling_Rate>
+    </Item>
+</Exchange_Rates_List>
+
+

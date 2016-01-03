@@ -2,15 +2,17 @@
 
 namespace RunOpenCode\ExchangeRate\Source;
 
-use Goutte\Client as GoutteClient;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Cookie\CookieJar;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
+use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 use RunOpenCode\ExchangeRate\Exception\UnknownRateTypeException;
+use RunOpenCode\ExchangeRate\Model\Rate;
 use Symfony\Component\DomCrawler\Crawler;
 
 class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
@@ -19,7 +21,15 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
 
     use LoggerAwareTrait;
 
+    /**
+     * @var array
+     */
     private $cache;
+
+    public function __construct()
+    {
+        $this->cache = array();
+    }
 
     /**
      * {@inheritdoc}
@@ -42,16 +52,26 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
             $date = new \DateTime('now');
         }
 
-        if ($this->cache === null) {
-            $this->cache = $this->load($date);
+        if (!array_key_exists($rateType, $this->cache)) {
+
+            try {
+                $this->load($date, $rateType);
+            } catch (\Exception $e) {
+                $exception = new SourceNotAvailableException(sprintf('Unable to load data from "%s" for "%s" of rate type "%s".', $this->getName(), $currencyCode, $rateType), 0, $e);
+
+                if ($this->logger) {
+                    $this->logger->emergency($exception->getMessage());
+                }
+
+                throw $exception;
+            }
         }
 
-        if (array_key_exists($key = sprintf('%s_%s', $currencyCode, $rateType), $this->cache)) {
-            return $this->cache[$key];
-        } else {
-            // Baciti exception.
+        if (array_key_exists($currencyCode, $this->cache[$rateType])) {
+            return $this->cache[$rateType][$currencyCode];
         }
 
+        throw new ConfigurationException(sprintf('Source "%s" does not provide currency code "%s" for rate type "%s".', $this->getName(), $currencyCode, $rateType));
     }
 
     protected function validateRateType($rateType)
@@ -64,7 +84,7 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
             'foreign_exchange_selling'
         );
 
-        if (!in_array($rateType, $knownTypes)) {
+        if (!in_array($rateType, $knownTypes, true)) {
             throw new UnknownRateTypeException(sprintf('Unknown rate type "%s" for source "%s", known types are: %s.', $rateType, $this->getName(), implode(', ', $knownTypes)));
         }
 
@@ -83,7 +103,7 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
             'foreign_exchange_selling'
         );
 
-        if (!in_array($currencyCode, $supports[$rateType])) {
+        if (!in_array($currencyCode, $supports[$rateType], true)) {
             throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
         }
 
@@ -95,35 +115,115 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
      * @return RateInterface[]
      * @throws SourceNotAvailableException
      */
-    protected function load(\DateTime $date)
+    protected function load(\DateTime $date, $rateType)
     {
         $guzzleClient = new GuzzleClient(array('cookies' => true));
         $jar = new CookieJar;
-        $client = new GoutteClient();
-        $client->setClient($guzzleClient);
 
-        $crawler = $this->getCrawler($date);
+        $postParams = $this->getPostParams($date, $rateType, $this->extractCsrfToken($guzzleClient, $jar));
 
-        // parsiranje
-    }
+        $response = $guzzleClient->request('POST', self::SOURCE, array(
+            'form_params' => $postParams,
+            'cookies' => $jar
+        ));
 
-    /**
-     * @param \DateTime $date
-     * @return Crawler
-     * @throws SourceNotAvailableException
-     */
-    protected function getCrawler(\DateTime $date)
-    {
-        $url = sprintf('http', $date->format('Y-m-d'));
-        $goutte = new Client();
-        try {
-            return $goutte->request('GET', $url);
-        } catch (\Exception $e) {
-            throw new SourceNotAvailableException(sprintf('Source not available on "%s".', $url), 0, $e);
+        $this->cache[$rateType] = array();
+
+        /**
+         * @var RateInterface $rate
+         */
+        foreach ($this->parseXml($response->getBody()->getContents(), $rateType) as $rate) {
+            $this->cache[$rate->getRateType()][$rate->getCurrencyCode()] = $rate;
         }
     }
 
-    protected function getPostParams(\DateTime $date, $rateType)
+    protected function parseXml($xml, $rateType)
+    {
+        $rates = array();
+        $stack = new \SplStack();
+        $currentRate = array();
+        $date = new \DateTime('now');
+
+        $parser = xml_parser_create();
+
+        xml_set_element_handler($parser, function($parser, $name, $attributes) use (&$rates, &$stack, &$currentRate) { // Element tag start
+
+            if (!empty($name)) {
+
+                $stack->push($name);
+
+                if ($name === 'ITEM') {
+                    $currentRate = array();
+                }
+            }
+
+        }, function($parser, $name) use (&$rates, &$stack, &$currentRate, &$rateType, &$date) { // Element tag end
+
+            if (!empty($name)) {
+
+                $stack->pop();
+
+                if ($name === 'ITEM') {
+
+                    if (strpos($rateType, 'buying') !== false) {
+                        $value = $currentRate['buyingRate'];
+                    } elseif (strpos($rateType, 'selling') !== false) {
+                        $value = $currentRate['sellingRate'];
+                    } else {
+                        $value = $currentRate['middleRate'];
+                    }
+
+                    $rates[] = new Rate(
+                        $this->getName(),
+                        ($value / $currentRate['unit']),
+                        $currentRate['currencyCode'],
+                        $rateType,
+                        $date,
+                        'RSD',
+                        new \DateTime('now'),
+                        new \DateTime('now')
+                    );
+                    $currentRate = array();
+                }
+            }
+        });
+
+        xml_set_character_data_handler($parser, function($parser, $data) use (&$rates, &$stack, &$currentRate, &$date) { // Element tag data
+
+            if (!empty($data)) {
+
+
+                switch ($stack->top()) {
+                    case 'DATE':
+                        $date = \DateTime::createFromFormat('d.m.Y', $data);
+                        break;
+                    case 'CURRENCY':
+                        $currentRate['currencyCode'] = trim($data);
+                        break;
+                    case 'UNIT':
+                        $currentRate['unit'] = (int) trim($data);
+                        break;
+                    case 'BUYING_RATE':
+                        $currentRate['buyingRate'] = (float) trim($data);
+                        break;
+                    case 'SELLING_RATE':
+                        $currentRate['sellingRate'] = (float) trim($data);
+                        break;
+                    case 'MIDDLE_RATE':
+                        $currentRate['middleRate'] = (float) trim($data);
+                        break;
+                }
+
+            }
+        });
+
+        xml_parse($parser, $xml);
+        xml_parser_free($parser);
+
+        return $rates;
+    }
+
+    protected function getPostParams(\DateTime $date, $rateType, $csrfToken)
     {
         return  array(
             'index:brKursneListe:' => '',
@@ -144,7 +244,7 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
                         break;
                 }
             }, $rateType),
-            'index:prikaz' => 0,
+            'index:prikaz' => 3, // XML
             'index:buttonShow' => 'Show',
             'index' => 'index',
             'com.sun.faces.VIEW' => null

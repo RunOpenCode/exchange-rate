@@ -3,6 +3,7 @@
 namespace RunOpenCode\ExchangeRate\Contract;
 
 use Psr\Log\LoggerAwareInterface;
+use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 use RunOpenCode\ExchangeRate\Exception\UnknownRateTypeException;
@@ -33,6 +34,7 @@ interface SourceInterface extends LoggerAwareInterface
      * @throws UnknownCurrencyCodeException
      * @throws UnknownRateTypeException
      * @throws SourceNotAvailableException
+     * @throws ConfigurationException
      */
     public function fetch($currencyCode, $rateType = 'default', $date = null);
 }

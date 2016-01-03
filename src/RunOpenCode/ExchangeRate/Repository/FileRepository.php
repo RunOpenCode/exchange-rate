@@ -49,7 +49,7 @@ class FileRepository implements RepositoryInterface
          * @var RateInterface $rate
          */
         foreach ($rates as $rate) {
-            $this->rates[sprintf('%s_%s_%s', $rate->getCurrencyCode(), $rate->getDate()->format('Y-m-d'), $rate->getRateType())] = $rate;
+            $this->rates[$this->getRateKey($rate)] = $rate;
         }
 
         usort($this->rates, function(RateInterface $rate1, RateInterface $rate2) {
