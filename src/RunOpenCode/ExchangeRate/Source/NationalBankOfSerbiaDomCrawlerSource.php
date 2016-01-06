@@ -1,30 +1,77 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Source;
 
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
-use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 use RunOpenCode\ExchangeRate\Exception\UnknownRateTypeException;
-use RunOpenCode\ExchangeRate\Model\Rate;
+use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
+use RunOpenCode\ExchangeRate\Source\Api\NationalBankOfSerbiaXmlSaxParser;
+use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * Class NationalBankOfSerbiaDomCrawlerSource
+ *
+ * This crawler crawls from National bank of Serbia public form for rates.
+ *
+ * @package RunOpenCode\ExchangeRate\Source
+ */
 class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
 {
+    /**
+     * API - Source of rates from National bank of Serbia.
+     */
     const SOURCE = 'http://www.nbs.rs/kursnaListaModul/naZeljeniDan.faces';
+
+    /**
+     * API - Name of source.
+     */
+    const NAME = 'national_bank_of_serbia';
 
     use LoggerAwareTrait;
 
     /**
+     * List of supported exchange rate types and currencies.
+     *
      * @var array
      */
-    private $cache;
+    private static $supports = array(
+        'default' => array('EUR', 'AUD', 'CAD', 'CNY', 'HRK', 'CZK', 'DKK', 'HUF', 'JPY', 'KWD', 'NOK', 'RUB', 'SEK', 'CHF',
+                           'GBP', 'USD', 'BAM', 'PLN', 'ATS', 'BEF', 'FIM', 'FRF', 'DEM', 'GRD', 'IEP', 'ITL', 'LUF', 'PTE',
+                           'ESP'),
+        'foreign_cache_buying' => array('EUR', 'CHF', 'USD'),
+        'foreign_cache_selling' => array('EUR', 'CHF', 'USD'),
+        'foreign_exchange_buying' => array('EUR', 'AUD', 'CAD', 'CNY', 'DKK', 'JPY', 'NOK', 'RUB', 'SEK', 'CHF', 'GBP', 'USD'),
+        'foreign_exchange_selling' => array('EUR', 'AUD', 'CAD', 'CNY', 'DKK', 'JPY', 'NOK', 'RUB', 'SEK', 'CHF', 'GBP', 'USD')
+    );
+
+    /**
+     * @var array
+     */
+    protected $cache;
+
+    /**
+     * @var Client
+     */
+    protected $guzzleClient;
+
+    /**
+     * @var CookieJar
+     */
+    protected $guzzleCookieJar;
 
     public function __construct()
     {
@@ -36,34 +83,33 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
      */
     public function getName()
     {
-        return 'national_bank_of_serbia';
+        return self::NAME;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function fetch($currencyCode, $rateType = 'default', $date = null)
+    public function fetch($currencyCode, $rateType = 'default', \DateTime $date = null)
     {
-        $this
-            ->validateRateType($rateType)
-            ->validateCurrencyCode($currencyCode, $rateType);
+        $currencyCode = CurrencyCodeUtil::clean($currencyCode);
 
-        if (is_null($date)) {
+        $this->validate($currencyCode, $rateType);
+
+        if ($date === null) {
             $date = new \DateTime('now');
         }
 
         if (!array_key_exists($rateType, $this->cache)) {
 
             try {
+
                 $this->load($date, $rateType);
+
             } catch (\Exception $e) {
-                $exception = new SourceNotAvailableException(sprintf('Unable to load data from "%s" for "%s" of rate type "%s".', $this->getName(), $currencyCode, $rateType), 0, $e);
+                $message = sprintf('Unable to load data from "%s" for "%s" of rate type "%s".', $this->getName(), $currencyCode, $rateType);
 
-                if ($this->logger) {
-                    $this->logger->emergency($exception->getMessage());
-                }
-
-                throw $exception;
+                $this->getLogger()->emergency($message);;
+                throw new SourceNotAvailableException($message, 0, $e);
             }
         }
 
@@ -71,43 +117,28 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
             return $this->cache[$rateType][$currencyCode];
         }
 
-        throw new ConfigurationException(sprintf('Source "%s" does not provide currency code "%s" for rate type "%s".', $this->getName(), $currencyCode, $rateType));
+        $message = sprintf('API Changed: source "%s" does not provide currency code "%s" for rate type "%s".', $this->getName(), $currencyCode, $rateType);
+        $this->getLogger()->critical($message);
+        throw new \RuntimeException($message);
     }
 
-    protected function validateRateType($rateType)
+    /**
+     * Check if currency code and rate type are supported by this source.
+     *
+     * @param string $currencyCode Currency code.
+     * @param string $rateType Rate type.
+     * @throws ConfigurationException If currency code is not supported by source and rate type.
+     * @throws UnknownRateTypeException If rate type is unknown.
+     */
+    protected function validate($currencyCode, $rateType)
     {
-        $knownTypes = array(
-            'default', // It is actually a middle exchange rate
-            'foreign_cache_buying',
-            'foreign_cache_selling',
-            'foreign_exchange_buying',
-            'foreign_exchange_selling'
-        );
-
-        if (!in_array($rateType, $knownTypes, true)) {
-            throw new UnknownRateTypeException(sprintf('Unknown rate type "%s" for source "%s", known types are: %s.', $rateType, $this->getName(), implode(', ', $knownTypes)));
+        if (!array_key_exists($rateType, self::$supports)) {
+            throw new UnknownRateTypeException(sprintf('Unknown rate type "%s" for source "%s".', $rateType, $this->getName()));
         }
 
-        return $this;
-    }
-
-    protected function validateCurrencyCode($currencyCode, $rateType)
-    {
-        $supports = array(
-            'default' => array(
-                'EUR', 'CHF'
-            ),
-            'foreign_cache_buying',
-            'foreign_cache_selling',
-            'foreign_exchange_buying',
-            'foreign_exchange_selling'
-        );
-
-        if (!in_array($currencyCode, $supports[$rateType], true)) {
-            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s" for source "%s" and rate type "%s".', $currencyCode, $this->getName(), $rateType));
+        if (!in_array($currencyCode, self::$supports[$rateType], true)) {
+            throw new ConfigurationException(sprintf('Unsupported currency code "%s" for source "%s" and rate type "%s".', $currencyCode, $this->getName(), $rateType));
         }
-
-        return $this;
     }
 
     /**
@@ -117,115 +148,9 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
      */
     protected function load(\DateTime $date, $rateType)
     {
-        $guzzleClient = new GuzzleClient(array('cookies' => true));
-        $jar = new CookieJar;
-
-        $postParams = $this->getPostParams($date, $rateType, $this->extractCsrfToken($guzzleClient, $jar));
-
-        $response = $guzzleClient->request('POST', self::SOURCE, array(
-            'form_params' => $postParams,
-            'cookies' => $jar
-        ));
-
         $this->cache[$rateType] = array();
 
-        /**
-         * @var RateInterface $rate
-         */
-        foreach ($this->parseXml($response->getBody()->getContents(), $rateType) as $rate) {
-            $this->cache[$rate->getRateType()][$rate->getCurrencyCode()] = $rate;
-        }
-    }
-
-    protected function parseXml($xml, $rateType)
-    {
-        $rates = array();
-        $stack = new \SplStack();
-        $currentRate = array();
-        $date = new \DateTime('now');
-
-        $parser = xml_parser_create();
-
-        xml_set_element_handler($parser, function($parser, $name, $attributes) use (&$rates, &$stack, &$currentRate) { // Element tag start
-
-            if (!empty($name)) {
-
-                $stack->push($name);
-
-                if ($name === 'ITEM') {
-                    $currentRate = array();
-                }
-            }
-
-        }, function($parser, $name) use (&$rates, &$stack, &$currentRate, &$rateType, &$date) { // Element tag end
-
-            if (!empty($name)) {
-
-                $stack->pop();
-
-                if ($name === 'ITEM') {
-
-                    if (strpos($rateType, 'buying') !== false) {
-                        $value = $currentRate['buyingRate'];
-                    } elseif (strpos($rateType, 'selling') !== false) {
-                        $value = $currentRate['sellingRate'];
-                    } else {
-                        $value = $currentRate['middleRate'];
-                    }
-
-                    $rates[] = new Rate(
-                        $this->getName(),
-                        ($value / $currentRate['unit']),
-                        $currentRate['currencyCode'],
-                        $rateType,
-                        $date,
-                        'RSD',
-                        new \DateTime('now'),
-                        new \DateTime('now')
-                    );
-                    $currentRate = array();
-                }
-            }
-        });
-
-        xml_set_character_data_handler($parser, function($parser, $data) use (&$rates, &$stack, &$currentRate, &$date) { // Element tag data
-
-            if (!empty($data)) {
-
-
-                switch ($stack->top()) {
-                    case 'DATE':
-                        $date = \DateTime::createFromFormat('d.m.Y', $data);
-                        break;
-                    case 'CURRENCY':
-                        $currentRate['currencyCode'] = trim($data);
-                        break;
-                    case 'UNIT':
-                        $currentRate['unit'] = (int) trim($data);
-                        break;
-                    case 'BUYING_RATE':
-                        $currentRate['buyingRate'] = (float) trim($data);
-                        break;
-                    case 'SELLING_RATE':
-                        $currentRate['sellingRate'] = (float) trim($data);
-                        break;
-                    case 'MIDDLE_RATE':
-                        $currentRate['middleRate'] = (float) trim($data);
-                        break;
-                }
-
-            }
-        });
-
-        xml_parse($parser, $xml);
-        xml_parser_free($parser);
-
-        return $rates;
-    }
-
-    protected function getPostParams(\DateTime $date, $rateType, $csrfToken)
-    {
-        return  array(
+        $xml = $this->executeHttpRequest(self::SOURCE, 'POST', array(), array(
             'index:brKursneListe:' => '',
             'index:year' => $date->format('Y'),
             'index:inputCalendar1' => $date->format('d/m/Y'),
@@ -247,14 +172,27 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
             'index:prikaz' => 3, // XML
             'index:buttonShow' => 'Show',
             'index' => 'index',
-            'com.sun.faces.VIEW' => null
-        );
+            'com.sun.faces.VIEW' => $this->getFormCsrfToken()
+        ));
+
+        $rates = NationalBankOfSerbiaXmlSaxParser::parseXml($xml);
+
+        /**
+         * @var RateInterface $rate
+         */
+        foreach ($rates as $rate) {
+            $this->cache[$rate->getRateType()][$rate->getCurrencyCode()] = $rate;
+        }
     }
 
-    protected function extractCsrfToken(GuzzleClient $guzzleClient, CookieJar $jar)
+    /**
+     * Get NBS's form CSRF token.
+     *
+     * @return string CSRF token.
+     */
+    protected function getFormCsrfToken()
     {
-        $response = $guzzleClient->request('GET', self::SOURCE, array('cookies' => $jar));
-        $crawler = new Crawler($response->getBody()->getContents());
+        $crawler = new Crawler($this->executeHttpRequest(self::SOURCE, 'GET'));
 
         $hiddens = $crawler->filter('input[type="hidden"]');
 
@@ -268,12 +206,57 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
             }
         }
 
-        $exception = new \RuntimeException('FATAL ERROR: National Bank of Serbia changed it\'s API, unable to extract token.');
+        $message = 'FATAL ERROR: National Bank of Serbia changed it\'s API, unable to extract token.';
+        $this->getLogger()->emergency($message);
+        throw new \RuntimeException($message);
+    }
 
-        if ($this->logger) {
-            $this->logger->emergency($exception->getMessage());
+    /**
+     * Execute HTTP request and get raw body response.
+     *
+     * @param string $url URL to fetch.
+     * @param string $method HTTP Method.
+     * @param array $params Params to send with request.
+     * @return string
+     */
+    protected function executeHttpRequest($url, $method, array $query = array(), array $params = array())
+    {
+        $client = $this->getGuzzleClient();
+
+        $response = $client->request($method, $url, array(
+            'cookies' => $this->getGuzzleCookieJar(),
+            'form_params' => $params,
+            'query' => $query
+        ));
+
+        return $response->getBody()->getContents();
+    }
+
+    /**
+     * Get Guzzle Client.
+     *
+     * @return Client
+     */
+    protected function getGuzzleClient()
+    {
+        if ($this->guzzleClient === null) {
+            $this->guzzleClient = new Client(array('cookies' => true));
         }
 
-        throw $exception;
+        return $this->guzzleClient;
+    }
+
+    /**
+     * Get Guzzle CookieJar.
+     *
+     * @return CookieJar
+     */
+    protected function getGuzzleCookieJar()
+    {
+        if ($this->guzzleCookieJar === null) {
+            $this->guzzleCookieJar = new CookieJar();
+        }
+
+        return $this->guzzleCookieJar;
     }
 }

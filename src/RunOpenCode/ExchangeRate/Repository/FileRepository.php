@@ -1,5 +1,12 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Repository;
 
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
@@ -8,6 +15,16 @@ use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 use RunOpenCode\ExchangeRate\Utils\RateFilterUtil;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
+/**
+ * Class FileRepository
+ *
+ * File repository is simple file based repository for storing rates.
+ * Rates are serialized into JSON and stored in plain text file, row by row.
+ *
+ * File repository can be used as repository for small number of rates.
+ *
+ * @package RunOpenCode\ExchangeRate\Repository
+ */
 class FileRepository implements RepositoryInterface
 {
     const RATE_KEY_FORMAT = '%currency_code%_%date%_%rate_type%';
@@ -186,7 +203,7 @@ class FileRepository implements RepositoryInterface
     }
 
     /**
-     * Load rates from file.
+     * Load all rates from file.
      *
      * @return RateInterface[]
      */
@@ -231,6 +248,12 @@ class FileRepository implements RepositoryInterface
         return $this->rates;
     }
 
+    /**
+     * Builds rate key to speed up search.
+     *
+     * @param RateInterface $rate
+     * @return string
+     */
     protected function getRateKey(RateInterface $rate)
     {
         return str_replace(
@@ -240,6 +263,9 @@ class FileRepository implements RepositoryInterface
         );
     }
 
+    /**
+     * Initializes file storage.
+     */
     protected function initStorage()
     {
         /** @noinspection MkdirRaceConditionInspection */

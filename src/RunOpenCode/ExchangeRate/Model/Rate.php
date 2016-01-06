@@ -1,10 +1,24 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Model;
 
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
+/**
+ * Class Rate
+ *
+ * Default implementation of exchange rate value.
+ *
+ * @package RunOpenCode\ExchangeRate\Model
+ */
 class Rate implements RateInterface
 {
     /**

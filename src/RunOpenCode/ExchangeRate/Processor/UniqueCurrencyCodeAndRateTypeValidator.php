@@ -14,18 +14,17 @@ use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
 use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
-use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 /**
- * Class BaseCurrencyValidator
+ * Class UniqueCurrencyCodeAndRateTypeValidator
  *
- * Processor which checks weather all rates have same base currency code.
+ * Checks if all rates are unique by compound key: "currency code", "rate type".
  *
  * This processor should be added to processing queue as one of the last ones.
  *
  * @package RunOpenCode\ExchangeRate\Processor
  */
-class BaseCurrencyValidator implements ProcessorInterface
+class UniqueCurrencyCodeAndRateTypeValidator implements ProcessorInterface
 {
     use LoggerAwareTrait;
 
@@ -34,19 +33,24 @@ class BaseCurrencyValidator implements ProcessorInterface
      */
     public function process($baseCurrencyCode, RatesConfigurationRegistryInterface $configurations, array $rates)
     {
-        $baseCurrencyCode = CurrencyCodeUtil::clean($baseCurrencyCode);
+        $registry = array();
 
         /**
          * @var RateInterface $rate
          */
         foreach ($rates as $rate) {
 
-            if ($baseCurrencyCode !== $rate->getBaseCurrencyCode()) {
-                $message = sprintf('Invalid base currency code "%s" of rate "%s" from source "%s" is not calculated.', $rate->getBaseCurrencyCode(), $rate->getCurrencyCode(), $rate->getSourceName());
+            $key = sprintf('%s_%s', $rate->getCurrencyCode(), $rate->getRateType());
+
+            if (array_key_exists($key, $registry)) {
+                $message = sprintf('Currency code "%s" of rate type "%s" is being fetched from at least two sources: "%s" and "%s".', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName(), $registry[$key]);
 
                 $this->getLogger()->critical($message);
                 throw new ConfigurationException($message);
+            } else {
+                $registry[$key] = $rate->getSourceName();
             }
+
         }
 
         return $rates;

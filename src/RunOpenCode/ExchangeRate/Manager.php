@@ -1,8 +1,14 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate;
 
-use Psr\Log\LoggerAwareTrait;
 use RunOpenCode\ExchangeRate\Contract\ManagerInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorsRegistryInterface;
@@ -10,8 +16,18 @@ use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
+use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
+use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
+use RunOpenCode\ExchangeRate\Registry\SourcesRegistry;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
+/**
+ * Class Manager
+ *
+ * Default implementation of manager.
+ *
+ * @package RunOpenCode\ExchangeRate
+ */
 class Manager implements ManagerInterface
 {
     use LoggerAwareTrait;
@@ -88,7 +104,12 @@ class Manager implements ManagerInterface
 
         if ((int)$today->format('N') >= 6) {
             $today = new \DateTime('last Friday');
+            return $this->get($currencyCode, $rateType, $today);
         }
+
+        $message = sprintf('Rate for currency code "%s" of type "%s" is not available for today "%s".', $currencyCode, $rateType, date('Y-m-d'));
+        $this->getLogger()->critical($message);
+        throw new ExchangeRateException($message);
     }
 
     /**
@@ -96,23 +117,12 @@ class Manager implements ManagerInterface
      */
     public function fetch($sourceName = null, $date = null)
     {
-        $sources = $this->sources->all();
-
-        if (!is_null($sourceName)) {
-            $sources = array();
-            $sourceNames = is_array($sourceName) ? $sourceName : array($sourceName);
-
-            foreach ($sourceNames as $sourceName) {
-                $sources[] = $this->sources->get($sourceName);
-            }
-        }
-
         $rates = array();
 
         /**
          * @var SourceInterface $source
          */
-        foreach ($sources as $source) {
+        foreach (SourcesRegistry::filter($this->sources, $sourceName) as $source) {
             $configurations = $this->configurations->find($source->getName());
 
             /**

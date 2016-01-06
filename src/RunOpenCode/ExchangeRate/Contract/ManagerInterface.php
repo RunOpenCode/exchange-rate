@@ -1,10 +1,24 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Contract;
 
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 use RunOpenCode\ExchangeRate\Exception\UnknownRateTypeException;
 
+/**
+ * Interface ManagerInterface
+ *
+ * Manager manages exchange rates and it is entry point to access exchange rate system.
+ *
+ * @package RunOpenCode\ExchangeRate\Contract
+ */
 interface ManagerInterface
 {
     /**

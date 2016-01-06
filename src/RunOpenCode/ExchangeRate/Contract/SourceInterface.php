@@ -1,5 +1,12 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Contract;
 
 use Psr\Log\LoggerAwareInterface;
@@ -25,6 +32,8 @@ interface SourceInterface extends LoggerAwareInterface
     public function getName();
 
     /**
+     * Fetch rate value from source.
+     *
      * @param string $currencyCode ISO currency code for which rate is being fetched.
      * @param string $rateType Type of the rate which is being fetched.
      * @param null|\DateTime $date Date on which rate is being fetched.
@@ -36,5 +45,5 @@ interface SourceInterface extends LoggerAwareInterface
      * @throws SourceNotAvailableException
      * @throws ConfigurationException
      */
-    public function fetch($currencyCode, $rateType = 'default', $date = null);
+    public function fetch($currencyCode, $rateType = 'default', \DateTime $date = null);
 }
