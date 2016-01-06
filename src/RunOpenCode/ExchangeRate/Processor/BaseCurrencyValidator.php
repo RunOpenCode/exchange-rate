@@ -7,7 +7,7 @@ use RunOpenCode\AssetsInjection\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
-use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
+use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 class BaseCurrencyValidator implements ProcessorInterface
 {
@@ -18,7 +18,7 @@ class BaseCurrencyValidator implements ProcessorInterface
      */
     public function process($baseCurrencyCode, RatesConfigurationRegistryInterface $configurations, array $rates)
     {
-        $baseCurrencyCode = CurrencyCode::validate($baseCurrencyCode);
+        $baseCurrencyCode = CurrencyCodeUtil::clean($baseCurrencyCode);
 
         /**
          * @var RateInterface $rate

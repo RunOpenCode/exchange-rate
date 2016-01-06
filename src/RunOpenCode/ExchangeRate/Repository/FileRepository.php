@@ -5,7 +5,7 @@ namespace RunOpenCode\ExchangeRate\Repository;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
-use RunOpenCode\ExchangeRate\Utils\RateFilter;
+use RunOpenCode\ExchangeRate\Utils\RateFilterUtil;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
 class FileRepository implements RepositoryInterface
@@ -168,7 +168,7 @@ class FileRepository implements RepositoryInterface
              */
             foreach ($this->rates as $rate) {
 
-                if (RateFilter::matches($rate, $criteria)) {
+                if (RateFilterUtil::matches($rate, $criteria)) {
                     $result[] = $rate;
                 }
             }

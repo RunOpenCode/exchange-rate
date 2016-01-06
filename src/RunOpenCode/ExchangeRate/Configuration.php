@@ -2,7 +2,7 @@
 
 namespace RunOpenCode\ExchangeRate;
 
-use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
+use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 class Configuration
 {
@@ -28,7 +28,7 @@ class Configuration
 
     public function __construct($currencyCode, $rateType, $source, array $extraConfiguration = array())
     {
-        $this->currencyCode = CurrencyCode::validate($currencyCode);
+        $this->currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $this->rateType = $rateType;
         $this->source = $source;
         $this->extraConfiguration = $extraConfiguration;

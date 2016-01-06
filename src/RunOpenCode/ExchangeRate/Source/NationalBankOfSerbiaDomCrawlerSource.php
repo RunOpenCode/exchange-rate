@@ -95,7 +95,7 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
     {
         $supports = array(
             'default' => array(
-                'EUR'
+                'EUR', 'CHF'
             ),
             'foreign_cache_buying',
             'foreign_cache_selling',
@@ -104,7 +104,7 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
         );
 
         if (!in_array($currencyCode, $supports[$rateType], true)) {
-            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
+            throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s" for source "%s" and rate type "%s".', $currencyCode, $this->getName(), $rateType));
         }
 
         return $this;

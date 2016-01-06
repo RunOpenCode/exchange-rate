@@ -1,5 +1,12 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Tests\Source;
 
 use GuzzleHttp\Client;
@@ -38,7 +45,7 @@ class NationalBankOfSerbiaDomCrawlerSourceTest extends \PHPUnit_Framework_TestCa
     /**
      * @test
      */
-    public function success()
+    public function successFetchMedian()
     {
         require_once  __DIR__ . '/../Fixtures/Fake/FakeGuzzleClient.php';
 
@@ -67,5 +74,9 @@ class NationalBankOfSerbiaDomCrawlerSourceTest extends \PHPUnit_Framework_TestCa
          */
         $rate = $source->fetch('EUR', 'default', \DateTime::createFromFormat('d.m.Y', '31.12.2015'));
         $this->assertSame(121.6261, $rate->getValue());
+
+        $rate = $source->fetch('CHF', 'default', \DateTime::createFromFormat('d.m.Y', '31.12.2015'));
+        $this->assertSame(112.5230, $rate->getValue());
+
     }
 }

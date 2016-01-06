@@ -1,17 +1,34 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Utils;
 
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
 
-final class CurrencyCode
+/**
+ * Class CurrencyCodeUtil
+ *
+ * Currency code utilities.
+ *
+ * @package RunOpenCode\ExchangeRate\Utils
+ */
+final class CurrencyCodeUtil
 {
     private function __construct() { }
 
     /**
      * List of currency codes.
      *
+     * List of currency codes. List contains some of already obsolete currency codes as well.
+     *
      * @see https://gist.github.com/Min2liz/5728013
+     * @see https://en.wikipedia.org/wiki/ISO_4217
      *
      * @var array
      */
@@ -137,29 +154,43 @@ final class CurrencyCode
         'FIM' => 'Finnish Markka',
         'FRF' => 'French Franc',
         'DEM' => 'German Mark',
-        'GRD' => '',
-        'IEP' => '',
-        'ITL' => '',
-        'LUF' => '',
-        'PTE' => '',
-        'ESP' => '',
-        'XDR' => ''
+        'GRD' => 'Greece Drachma',
+        'IEP' => 'Ireland Pound',
+        'ITL' => 'Italy Lira',
+        'LUF' => 'Luxembourg Franc',
+        'PTE' => 'Portugal Escudo',
+        'ESP' => 'Spain Peseta',
+        'XDR' => 'IMF Special Drawing Rights'
     );
 
+    /**
+     * Check if currency code exists.
+     *
+     * @param string $currencyCode ISO 4271 currency code.
+     * @return bool TRUE if exists.
+     */
     public static function exists($currencyCode)
-    {
-        return array_key_exists($currencyCode, self::$codes);
-    }
-
-    public static function validate($currencyCode)
     {
         $currencyCode = trim(strtoupper($currencyCode));
 
-        if (!self::exists($currencyCode)) {
+        return array_key_exists($currencyCode, self::$codes);
+    }
+
+    /**
+     * Clean currency code
+     *
+     * @param string $currencyCode Currency code to clean up.
+     * @return string Cleaned ISO 4271 currency code.
+     * @throws UnknownCurrencyCodeException If currency code does not exists.
+     */
+    public static function clean($currencyCode)
+    {
+        $clean = trim(strtoupper($currencyCode));
+
+        if (!self::exists($clean)) {
             throw new UnknownCurrencyCodeException(sprintf('Unknown currency code "%s".', $currencyCode));
         }
 
-        return $currencyCode;
+        return $clean;
     }
 }
-

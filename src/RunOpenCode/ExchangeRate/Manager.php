@@ -10,7 +10,7 @@ use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
-use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
+use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 class Manager implements ManagerInterface
 {
@@ -43,7 +43,7 @@ class Manager implements ManagerInterface
 
     public function __construct($baseCurrency, RepositoryInterface $repository, SourcesRegistryInterface $sources, ProcessorsRegistryInterface $processors, RatesConfigurationRegistryInterface $configurations)
     {
-        $this->baseCurrency = CurrencyCode::validate($baseCurrency);
+        $this->baseCurrency = CurrencyCodeUtil::clean($baseCurrency);
         $this->repository = $repository;
         $this->configurations = $configurations;
         $this->sources = $sources;
@@ -55,7 +55,7 @@ class Manager implements ManagerInterface
      */
     public function has($currencyCode, $date = null, $rateType = 'default')
     {
-        return $this->repository->has(CurrencyCode::validate($currencyCode), $date, $rateType);
+        return $this->repository->has(CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
 
     /**
@@ -63,7 +63,7 @@ class Manager implements ManagerInterface
      */
     public function get($currencyCode, $date = null, $rateType = 'default')
     {
-        return $this->repository->get(CurrencyCode::validate($currencyCode), $date, $rateType);
+        return $this->repository->get(CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
 
     /**
@@ -71,7 +71,7 @@ class Manager implements ManagerInterface
      */
     public function latest($currencyCode, $rateType = 'default')
     {
-        return $this->repository->latest(CurrencyCode::validate($currencyCode), $rateType);
+        return $this->repository->latest(CurrencyCodeUtil::clean($currencyCode), $rateType);
     }
 
     /**
@@ -79,7 +79,7 @@ class Manager implements ManagerInterface
      */
     public function today($currencyCode, $rateType = 'default')
     {
-        $currencyCode = CurrencyCode::validate($currencyCode);
+        $currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $today = new \DateTime('now');
 
         if ($this->has($currencyCode, $rateType, $today)) {

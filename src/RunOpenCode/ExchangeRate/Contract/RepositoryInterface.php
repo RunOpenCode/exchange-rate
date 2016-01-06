@@ -58,8 +58,8 @@ interface RepositoryInterface extends \Countable
      * * onDate, \DateTime
      * * rateType, string
      * * rateTypes, string
-     * * source, string
-     * * sources, array
+     * * sourceName, string
+     * * sourceNames, array
      *
      * @param array $criteria Filtering criteria to apply.
      * @return RateInterface[]

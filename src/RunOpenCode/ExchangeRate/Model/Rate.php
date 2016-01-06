@@ -3,7 +3,7 @@
 namespace RunOpenCode\ExchangeRate\Model;
 
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
-use RunOpenCode\ExchangeRate\Utils\CurrencyCode;
+use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 class Rate implements RateInterface
 {
@@ -51,9 +51,9 @@ class Rate implements RateInterface
     {
         $this->sourceName = $sourceName;
         $this->value = $value;
-        $this->currencyCode = CurrencyCode::validate($currencyCode);
+        $this->currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $this->rateType = $rateType;
-        $this->baseCurrencyCode = CurrencyCode::validate($baseCurrencyCode);
+        $this->baseCurrencyCode = CurrencyCodeUtil::clean($baseCurrencyCode);
 
         $processDate = function($arg) {
             $arg = (is_null($arg)) ? new \DateTime('now') : $arg;
