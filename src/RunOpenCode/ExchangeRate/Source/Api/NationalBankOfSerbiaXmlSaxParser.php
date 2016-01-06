@@ -94,13 +94,10 @@ class NationalBankOfSerbiaXmlSaxParser
      */
     private function onStart($parser, $name, $attributes)
     {
-        if (!empty($name)) {
+        $this->stack->push($name);
 
-            $this->stack->push($name);
-
-            if ($name === 'ITEM') {
-                $this->currentRate = array();
-            }
+        if ($name === 'ITEM') {
+            $this->currentRate = array();
         }
     }
 
@@ -112,56 +109,55 @@ class NationalBankOfSerbiaXmlSaxParser
      */
     private function onEnd($parser, $name)
     {
-        if (!empty($name)) {
+        $this->stack->pop();
 
-            $this->stack->pop();
+        $buildRate = function($value, $currencyCode, $rateType, $date) {
 
-            if ($name === 'ITEM') {
+            return new Rate(
+                NationalBankOfSerbiaDomCrawlerSource::NAME,
+                $value,
+                $currencyCode,
+                $rateType,
+                $date,
+                'RSD',
+                new \DateTime('now'),
+                new \DateTime('now')
+            );
+        };
 
-                if (array_key_exists('buyingRate', $this->currentRate)) {
+        if ($name === 'ITEM') {
 
-                    $this->rates[] = new Rate(
-                        NationalBankOfSerbiaDomCrawlerSource::NAME,
-                        $this->currentRate['buyingRate'] / $this->currentRate['unit'],
-                        $this->currentRate['currencyCode'],
-                        $this->rateType . '_buying',
-                        $this->date,
-                        'RSD',
-                        new \DateTime('now'),
-                        new \DateTime('now')
-                    );
-                }
+            if (array_key_exists('buyingRate', $this->currentRate)) {
 
-                if (array_key_exists('sellingRate', $this->currentRate)) {
-
-                    $this->rates[] = new Rate(
-                        NationalBankOfSerbiaDomCrawlerSource::NAME,
-                        $this->currentRate['sellingRate'] / $this->currentRate['unit'],
-                        $this->currentRate['currencyCode'],
-                        $this->rateType . '_selling',
-                        $this->date,
-                        'RSD',
-                        new \DateTime('now'),
-                        new \DateTime('now')
-                    );
-                }
-
-                if (array_key_exists('middleRate', $this->currentRate)) {
-
-                    $this->rates[] = new Rate(
-                        NationalBankOfSerbiaDomCrawlerSource::NAME,
-                        $this->currentRate['middleRate'] / $this->currentRate['unit'],
-                        $this->currentRate['currencyCode'],
-                        'default',
-                        $this->date,
-                        'RSD',
-                        new \DateTime('now'),
-                        new \DateTime('now')
-                    );
-                }
-
-                $this->currentRate = array();
+                $this->rates[] = $buildRate(
+                    $this->currentRate['buyingRate'] / $this->currentRate['unit'],
+                    $this->currentRate['currencyCode'],
+                    $this->rateType . '_buying',
+                    $this->date
+                );
             }
+
+            if (array_key_exists('sellingRate', $this->currentRate)) {
+
+                $this->rates[] = $buildRate(
+                    $this->currentRate['sellingRate'] / $this->currentRate['unit'],
+                    $this->currentRate['currencyCode'],
+                    $this->rateType . '_selling',
+                    $this->date
+                );
+            }
+
+            if (array_key_exists('middleRate', $this->currentRate)) {
+
+                $this->rates[] = $buildRate(
+                    $this->currentRate['middleRate'] / $this->currentRate['unit'],
+                    $this->currentRate['currencyCode'],
+                    'default',
+                    $this->date
+                );
+            }
+
+            $this->currentRate = array();
         }
     }
 
@@ -203,7 +199,6 @@ class NationalBankOfSerbiaXmlSaxParser
                     $this->currentRate['middleRate'] = (float) trim($data);
                     break;
             }
-
         }
     }
 
