@@ -8,6 +8,7 @@
  * file that was distributed with this source code.
  */
 namespace RunOpenCode\ExchangeRate\Source\Api;
+
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Model\Rate;
 use RunOpenCode\ExchangeRate\Source\NationalBankOfSerbiaDomCrawlerSource;
@@ -92,7 +93,7 @@ class NationalBankOfSerbiaXmlSaxParser
      * @param $name
      * @param $attributes
      */
-    private function onStart($parser, $name, $attributes)
+    protected function onStart($parser, $name, $attributes)
     {
         $this->stack->push($name);
 
@@ -107,7 +108,7 @@ class NationalBankOfSerbiaXmlSaxParser
      * @param $parser
      * @param $name
      */
-    private function onEnd($parser, $name)
+    protected function onEnd($parser, $name)
     {
         $this->stack->pop();
 
@@ -167,7 +168,7 @@ class NationalBankOfSerbiaXmlSaxParser
      * @param $parser
      * @param $data
      */
-    private function onData($parser, $data)
+    protected function onData($parser, $data)
     {
         if (!empty($data)) {
 
@@ -213,4 +214,5 @@ class NationalBankOfSerbiaXmlSaxParser
         $parser = new static();
         return $parser->parse($xml);
     }
+
 }

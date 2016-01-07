@@ -148,8 +148,6 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
      */
     protected function load(\DateTime $date, $rateType)
     {
-        $this->cache[$rateType] = array();
-
         $xml = $this->executeHttpRequest(self::SOURCE, 'POST', array(), array(
             'index:brKursneListe:' => '',
             'index:year' => $date->format('Y'),
@@ -181,6 +179,11 @@ class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
          * @var RateInterface $rate
          */
         foreach ($rates as $rate) {
+
+            if (!array_key_exists($rate->getRateType(), $this->cache)) {
+                $this->cache[$rate->getRateType()] = array();
+            }
+
             $this->cache[$rate->getRateType()][$rate->getCurrencyCode()] = $rate;
         }
     }
