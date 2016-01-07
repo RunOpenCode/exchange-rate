@@ -35,31 +35,37 @@ interface RepositoryInterface extends \Countable
     /**
      * Check if exchange rate for currency is available on given date.
      *
+     * @param string $sourceName Source from which rate is fetched.
      * @param string $currencyCode Currency code for which exchange rate is required.
      * @param \DateTime|null $date Date of rate, or current date is going to be used.
      * @param string $rateType Type of rate.
+     *
      * @return bool
      */
-    public function has($currencyCode, \DateTime $date = null, $rateType = 'default');
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default');
 
     /**
      * Get rate for currency on given date.
      *
+     * @param string $sourceName Source from which rate is fetched.
      * @param string $currencyCode Currency code for which exchange rate is required.
      * @param \DateTime|null $date Date of rate, or current date is going to be used.
      * @param string $rateType Type of rate.
+     *
      * @return RateInterface
      */
-    public function get($currencyCode, \DateTime $date = null, $rateType = 'default');
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default');
 
     /**
      * Get latest available rate.
      *
+     * @param string $sourceName Source from which rate is fetched.
      * @param string $currencyCode Currency code for which exchange rate is required.
      * @param string $rateType Type of rate.
+     *
      * @return RateInterface
      */
-    public function latest($currencyCode, $rateType = 'default');
+    public function latest($sourceName, $currencyCode, $rateType = 'default');
 
     /**
      * Get all rates. If filtering criteria is provided, return matches only.

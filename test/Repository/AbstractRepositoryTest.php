@@ -18,7 +18,7 @@ abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
             new Rate('moj', 10, 'EUR', 'default', new \DateTime(), 'RSD', new \DateTime(), new \DateTime())
         ));
 
-        $this->assertTrue($repository->has('EUR'));
+        $this->assertTrue($repository->has('moj', 'EUR'));
 
     }
 

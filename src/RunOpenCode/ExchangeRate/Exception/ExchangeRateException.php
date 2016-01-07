@@ -9,6 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Exception;
 
+/**
+ * Class ExchangeRateException
+ *
+ * @package RunOpenCode\ExchangeRate\Exception
+ */
 class ExchangeRateException extends \Exception
 {
     /**

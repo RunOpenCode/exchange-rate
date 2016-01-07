@@ -11,6 +11,7 @@ namespace RunOpenCode\ExchangeRate\Registry;
 
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
+use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
 
 /**
  * Class SourcesRegistry
@@ -57,10 +58,16 @@ final class SourcesRegistry implements SourcesRegistryInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws SourceNotAvailableException
      */
     public function get($name)
     {
-        return $this->sources[$name];
+        if ($this->has($name)) {
+            return $this->sources[$name];
+        }
+
+        throw new SourceNotAvailableException(sprintf('Unknown source requested: "%s".', $name));
     }
 
     /**
@@ -84,7 +91,10 @@ final class SourcesRegistry implements SourcesRegistryInterface
      *
      * @param SourcesRegistryInterface $registry Sources collection.
      * @param string|array|null $names Source names to keep.
+     *
      * @return SourceInterface[]
+     *
+     * @throws \InvalidArgumentException
      */
     public static function filter(SourcesRegistryInterface $registry, $names = null)
     {

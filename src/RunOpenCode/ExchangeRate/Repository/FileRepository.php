@@ -12,6 +12,7 @@ namespace RunOpenCode\ExchangeRate\Repository;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
+use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 use RunOpenCode\ExchangeRate\Utils\RateFilterUtil;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
@@ -27,7 +28,7 @@ use RunOpenCode\ExchangeRate\Model\Rate;
  */
 class FileRepository implements RepositoryInterface
 {
-    const RATE_KEY_FORMAT = '%currency_code%_%date%_%rate_type%';
+    const RATE_KEY_FORMAT = '%currency_code%_%date%_%rate_type%_%source_name%';
 
     /**
      * File where all rates are persisted.
@@ -114,7 +115,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function has($currencyCode, \DateTime $date = null, $rateType = 'default')
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
     {
         if ($date === null) {
             $date = new \DateTime('now');
@@ -122,8 +123,8 @@ class FileRepository implements RepositoryInterface
 
         return array_key_exists(
             str_replace(
-                array('%currency_code%', '%date%', '%rate_type%'),
-                array($currencyCode, $date->format('Y-m-d'), $rateType),
+                array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
+                array(CurrencyCodeUtil::clean($currencyCode), $date->format('Y-m-d'), $rateType, $sourceName),
                 self::RATE_KEY_FORMAT
             ),
             $this->rates
@@ -133,7 +134,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function get($currencyCode, \DateTime $date = null, $rateType = 'default')
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
     {
         if ($date === null) {
             $date = new \DateTime('now');
@@ -142,8 +143,8 @@ class FileRepository implements RepositoryInterface
         if ($this->has($currencyCode, $date, $rateType)) {
             return $this->rates[
                 str_replace(
-                    array('%currency_code%', '%date%', '%rate_type%'),
-                    array($currencyCode, $date->format('Y-m-d'), $rateType),
+                    array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
+                    array(CurrencyCodeUtil::clean($currencyCode), $date->format('Y-m-d'), $rateType, $sourceName),
                     self::RATE_KEY_FORMAT
                 )
             ];
@@ -155,19 +156,26 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($currencyCode, $rateType = 'default')
+    public function latest($sourceName, $currencyCode, $rateType = 'default')
     {
+        $currencyCode = CurrencyCodeUtil::clean($currencyCode);
         /**
          * @var RateInterface $rate
          */
         foreach ($this->rates as $rate) {
 
-            if ($rate->getCurrencyCode() === $currencyCode && $rate->getRateType() === $rateType) {
+            if (
+                $rate->getSourceName() === $sourceName
+                &&
+                $rate->getCurrencyCode() === $currencyCode
+                &&
+                $rate->getRateType() === $rateType
+            ) {
                 return $rate;
             }
         }
 
-        throw new ExchangeRateException(sprintf('Could not fetch latest rate for rate currency code "%s" and rate type "%s".', $currencyCode, $rateType));
+        throw new ExchangeRateException(sprintf('Could not fetch latest rate for rate currency code "%s" and rate type "%s" from source "%s".', $currencyCode, $rateType, $sourceName));
     }
 
     /**
@@ -232,7 +240,7 @@ class FileRepository implements RepositoryInterface
 
                 $this->rates[$this->getRateKey($rate)] = $rate;
 
-                $latestKey = sprintf('%s_%s', $rate->getCurrencyCode(), $rate->getRateType());
+                $latestKey = sprintf('%s_%s_%s', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName());
 
                 if (!isset($this->latest[$latestKey]) || ($this->latest[$latestKey]->getDate() < $rate->getDate())) {
                     $this->latest[$latestKey] = $rate;
@@ -257,8 +265,8 @@ class FileRepository implements RepositoryInterface
     protected function getRateKey(RateInterface $rate)
     {
         return str_replace(
-            array('%currency_code%', '%date%', '%rate_type%'),
-            array($rate->getCurrencyCode(), $rate->getDate()->format('Y-m-d'), $rate->getRateType()),
+            array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
+            array($rate->getCurrencyCode(), $rate->getDate()->format('Y-m-d'), $rate->getRateType(), $rate->getSourceName()),
             self::RATE_KEY_FORMAT
         );
     }

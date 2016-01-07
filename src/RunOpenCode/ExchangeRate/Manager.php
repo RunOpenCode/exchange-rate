@@ -69,23 +69,23 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function has($currencyCode, $date = null, $rateType = 'default')
+    public function has($sourceName, $currencyCode, $date = null, $rateType = 'default')
     {
-        return $this->repository->has(CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
+        return $this->repository->has($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function get($currencyCode, $date = null, $rateType = 'default')
+    public function get($sourceName, $currencyCode, $date = null, $rateType = 'default')
     {
-        return $this->repository->get(CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
+        return $this->repository->get($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function latest($currencyCode, $rateType = 'default')
+    public function latest($sourceName, $currencyCode, $rateType = 'default')
     {
         return $this->repository->latest(CurrencyCodeUtil::clean($currencyCode), $rateType);
     }
@@ -93,7 +93,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function today($currencyCode, $rateType = 'default')
+    public function today($sourceName, $currencyCode, $rateType = 'default')
     {
         $currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $today = new \DateTime('now');

@@ -9,6 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Exception;
 
+/**
+ * Class SourceNotAvailableException
+ *
+ * @package RunOpenCode\ExchangeRate\Exception
+ */
 class SourceNotAvailableException extends ExchangeRateException
 {
 

@@ -9,6 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Exception;
 
+/**
+ * Class ConfigurationException
+ *
+ * @package RunOpenCode\ExchangeRate\Exception
+ */
 class ConfigurationException extends ExchangeRateException
 {
 

@@ -27,6 +27,7 @@ interface ProcessorInterface extends LoggerAwareInterface
      * @param string $baseCurrencyCode Base currency code.
      * @param RatesConfigurationRegistryInterface $configurations Rates configurations.
      * @param RateInterface[] $rates All available rates.
+     *
      * @return RateInterface[] Processed rates.
      *
      * @throws ExchangeRateException

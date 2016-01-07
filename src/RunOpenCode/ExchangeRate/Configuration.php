@@ -37,15 +37,21 @@ class Configuration
     private $source;
 
     /**
+     * @var string
+     */
+    private $alias;
+
+    /**
      * @var array
      */
     private $extraConfiguration;
 
-    public function __construct($currencyCode, $rateType, $source, array $extraConfiguration = array())
+    public function __construct($currencyCode, $rateType, $source, $alias = null, array $extraConfiguration = array())
     {
         $this->currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $this->rateType = $rateType;
         $this->source = $source;
+        $this->alias = $alias;
         $this->extraConfiguration = $extraConfiguration;
     }
 
@@ -77,6 +83,16 @@ class Configuration
     public function getSource()
     {
         return $this->source;
+    }
+
+    /**
+     * Get alias.
+     *
+     * @return null|string
+     */
+    public function getAlias()
+    {
+        return $this->alias;
     }
 
     /**
