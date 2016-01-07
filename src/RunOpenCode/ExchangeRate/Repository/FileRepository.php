@@ -140,7 +140,7 @@ class FileRepository implements RepositoryInterface
             $date = new \DateTime('now');
         }
 
-        if ($this->has($currencyCode, $date, $rateType)) {
+        if ($this->has($sourceName, $currencyCode, $date, $rateType)) {
             return $this->rates[
                 str_replace(
                     array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
