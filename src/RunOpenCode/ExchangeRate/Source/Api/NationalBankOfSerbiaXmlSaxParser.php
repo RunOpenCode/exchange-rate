@@ -16,7 +16,7 @@ use RunOpenCode\ExchangeRate\Source\NationalBankOfSerbiaDomCrawlerSource;
 /**
  * Class NationalBankOfSerbiaXmlSaxParser
  *
- * Parses XML files from National bank of Serbia.
+ * Parses XML files from National Bank of Serbia.
  *
  * @package RunOpenCode\ExchangeRate\Source\Api
  * @internal
@@ -49,7 +49,7 @@ class NationalBankOfSerbiaXmlSaxParser
     private $rateType;
 
     /**
-     * Parse XML from National bank of Serbia.
+     * Parse XML from National Bank of Serbia.
      *
      * @param string $xml
      * @return RateInterface[]
@@ -204,7 +204,7 @@ class NationalBankOfSerbiaXmlSaxParser
     }
 
     /**
-     * Parse XML from National bank of Serbia.
+     * Parse XML from National Bank of Serbia.
      *
      * @param string $xml
      * @return RateInterface[]

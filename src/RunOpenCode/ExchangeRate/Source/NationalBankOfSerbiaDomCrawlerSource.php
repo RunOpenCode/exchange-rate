@@ -25,14 +25,14 @@ use Symfony\Component\DomCrawler\Crawler;
 /**
  * Class NationalBankOfSerbiaDomCrawlerSource
  *
- * This crawler crawls from National bank of Serbia public form for rates.
+ * This crawler crawls from National Bank of Serbia public form for rates.
  *
  * @package RunOpenCode\ExchangeRate\Source
  */
 class NationalBankOfSerbiaDomCrawlerSource implements SourceInterface
 {
     /**
-     * API - Source of rates from National bank of Serbia.
+     * API - Source of rates from National Bank of Serbia.
      */
     const SOURCE = 'http://www.nbs.rs/kursnaListaModul/naZeljeniDan.faces';
 
