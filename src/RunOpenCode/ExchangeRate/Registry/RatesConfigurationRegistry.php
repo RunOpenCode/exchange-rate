@@ -26,9 +26,15 @@ class RatesConfigurationRegistry implements RatesConfigurationRegistryInterface
      */
     protected $configurations;
 
+    /**
+     * @var array
+     */
+    protected $aliases;
+
     public function __construct()
     {
         $this->configurations = array();
+        $this->aliases = array();
     }
 
     /**
@@ -36,6 +42,15 @@ class RatesConfigurationRegistry implements RatesConfigurationRegistryInterface
      */
     public function add(Configuration $configuration)
     {
+        if ($configuration->getAlias() !== null) {
+
+            if (array_key_exists($configuration->getAlias(), $this->aliases)) {
+                throw new \RuntimeException(sprintf('Rate with alias "%s" already exists.', $configuration->getAlias()));
+            }
+
+            $this->aliases[$configuration->getAlias()] = $configuration;
+        }
+
         $this->configurations[] = $configuration;
     }
 
@@ -51,7 +66,7 @@ class RatesConfigurationRegistry implements RatesConfigurationRegistryInterface
          */
         foreach ($this->configurations as $configuration) {
 
-            if ($configuration->getSource() == $sourceName) {
+            if ($configuration->getSource() === $sourceName) {
                 $result[] = $configuration;
             }
         }

@@ -85,6 +85,13 @@ interface ManagerInterface
     public function today($sourceName, $currencyCode, $rateType = 'default');
 
     /**
+     * Get alias registry interface.
+     *
+     * @return AliasRegistryInterface
+     */
+    public function alias();
+
+    /**
      * Fetch rates from sources.
      *
      * @param string|array|null $sourceName Name of source from where rates should be fetched from. If none is provided, rates will be fetched from all sources.

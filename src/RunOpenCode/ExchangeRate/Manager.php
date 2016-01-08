@@ -9,6 +9,7 @@
  */
 namespace RunOpenCode\ExchangeRate;
 
+use RunOpenCode\ExchangeRate\Contract\AliasRegistryInterface;
 use RunOpenCode\ExchangeRate\Contract\ManagerInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorsRegistryInterface;
@@ -18,6 +19,7 @@ use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
+use RunOpenCode\ExchangeRate\Registry\AliasRegistry;
 use RunOpenCode\ExchangeRate\Registry\SourcesRegistry;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
@@ -57,6 +59,11 @@ class Manager implements ManagerInterface
      */
     protected $configurations;
 
+    /**
+     * @var AliasRegistryInterface
+     */
+    protected $aliasRegistry;
+
     public function __construct($baseCurrency, RepositoryInterface $repository, SourcesRegistryInterface $sources, ProcessorsRegistryInterface $processors, RatesConfigurationRegistryInterface $configurations)
     {
         $this->baseCurrency = CurrencyCodeUtil::clean($baseCurrency);
@@ -64,6 +71,7 @@ class Manager implements ManagerInterface
         $this->configurations = $configurations;
         $this->sources = $sources;
         $this->processors = $processors;
+        $this->aliasRegistry = new AliasRegistry($this, $this->configurations);
     }
 
     /**
@@ -110,6 +118,14 @@ class Manager implements ManagerInterface
         $message = sprintf('Rate for currency code "%s" of type "%s" is not available for today "%s".', $currencyCode, $rateType, date('Y-m-d'));
         $this->getLogger()->critical($message);
         throw new ExchangeRateException($message);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function alias()
+    {
+        return $this->aliasRegistry;
     }
 
     /**
