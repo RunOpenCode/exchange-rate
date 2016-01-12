@@ -12,7 +12,6 @@ namespace RunOpenCode\ExchangeRate\Repository;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
-use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 use RunOpenCode\ExchangeRate\Utils\RateFilterUtil;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
@@ -28,8 +27,6 @@ use RunOpenCode\ExchangeRate\Model\Rate;
  */
 class FileRepository implements RepositoryInterface
 {
-    const RATE_KEY_FORMAT = '%currency_code%_%date%_%rate_type%_%source_name%';
-
     /**
      * File where all rates are persisted.
      *
@@ -80,16 +77,7 @@ class FileRepository implements RepositoryInterface
          * @var RateInterface $rate
          */
         foreach ($this->rates as $rate) {
-            $data .= json_encode(array(
-                    'sourceName' => $rate->getSourceName(),
-                    'value' => $rate->getValue(),
-                    'currencyCode' => $rate->getCurrencyCode(),
-                    'rateType' => $rate->getRateType(),
-                    'date' => $rate->getDate()->format('Y-m-d H:i:s'),
-                    'baseCurrencyCode' => $rate->getBaseCurrencyCode(),
-                    'createdAt' => $rate->getCreatedAt()->format('Y-m-d H:i:s'),
-                    'modifiedAt' => $rate->getModifiedAt()->format('Y-m-d H:i:s')
-                )) . "\n";
+            $data .= $this->toJson($rate) . "\n";
         }
 
         file_put_contents($this->pathToFile, $data, LOCK_EX);
@@ -121,14 +109,7 @@ class FileRepository implements RepositoryInterface
             $date = new \DateTime('now');
         }
 
-        return array_key_exists(
-            str_replace(
-                array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
-                array(CurrencyCodeUtil::clean($currencyCode), $date->format('Y-m-d'), $rateType, $sourceName),
-                self::RATE_KEY_FORMAT
-            ),
-            $this->rates
-        );
+        return array_key_exists($this->getRateKey($currencyCode, $date, $rateType, $sourceName), $this->rates);
     }
 
     /**
@@ -141,13 +122,7 @@ class FileRepository implements RepositoryInterface
         }
 
         if ($this->has($sourceName, $currencyCode, $date, $rateType)) {
-            return $this->rates[
-                str_replace(
-                    array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
-                    array(CurrencyCodeUtil::clean($currencyCode), $date->format('Y-m-d'), $rateType, $sourceName),
-                    self::RATE_KEY_FORMAT
-                )
-            ];
+            return $this->rates[$this->getRateKey($currencyCode, $date, $rateType, $sourceName)];
         }
 
         throw new ExchangeRateException(sprintf('Could not fetch rate for rate currency code "%s" and rate type "%s" on date "%s".', $currencyCode, $rateType, $date->format('Y-m-d')));
@@ -158,7 +133,6 @@ class FileRepository implements RepositoryInterface
      */
     public function latest($sourceName, $currencyCode, $rateType = 'default')
     {
-        $currencyCode = CurrencyCodeUtil::clean($currencyCode);
         /**
          * @var RateInterface $rate
          */
@@ -198,7 +172,7 @@ class FileRepository implements RepositoryInterface
                 }
             }
 
-            return $result;
+            return $this->paginate($result, $criteria);
         }
     }
 
@@ -225,18 +199,8 @@ class FileRepository implements RepositoryInterface
         if ($handle) {
 
             while (($line = fgets($handle)) !== false) {
-                $data = json_decode($line, true);
 
-                $rate = new Rate(
-                    $data['sourceName'],
-                    $data['value'],
-                    $data['currencyCode'],
-                    $data['rateType'],
-                    \DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
-                    $data['baseCurrencyCode'],
-                    \DateTime::createFromFormat('Y-m-d H:i:s', $data['createdAt']),
-                    \DateTime::createFromFormat('Y-m-d H:i:s', $data['modifiedAt'])
-                );
+                $rate = $this->fromJson($line);
 
                 $this->rates[$this->getRateKey($rate)] = $rate;
 
@@ -259,15 +223,25 @@ class FileRepository implements RepositoryInterface
     /**
      * Builds rate key to speed up search.
      *
-     * @param RateInterface $rate
+     * @param null $currencyCode
+     * @param null $date
+     * @param null $rateType
+     * @param null $sourceName
      * @return string
      */
-    protected function getRateKey(RateInterface $rate)
+    protected function getRateKey($currencyCode = null, $date = null, $rateType = null, $sourceName = null)
     {
+        if ($currencyCode instanceof RateInterface) {
+            $date = $currencyCode->getDate();
+            $rateType = $currencyCode->getRateType();
+            $sourceName = $currencyCode->getSourceName();
+            $currencyCode = $currencyCode->getCurrencyCode();
+        }
+
         return str_replace(
             array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
-            array($rate->getCurrencyCode(), $rate->getDate()->format('Y-m-d'), $rate->getRateType(), $rate->getSourceName()),
-            self::RATE_KEY_FORMAT
+            array($currencyCode, $date->format('Y-m-d'), $rateType, $sourceName),
+            '%currency_code%_%date%_%rate_type%_%source_name%'
         );
     }
 
@@ -292,5 +266,71 @@ class FileRepository implements RepositoryInterface
         if (!is_writable($this->pathToFile)) {
             throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be writeable.', $this->pathToFile));
         }
+    }
+
+    /**
+     * Serialize rate to JSON string.
+     *
+     * @param RateInterface $rate Rate to serialize.
+     * @return string JSON representation of rate.
+     */
+    protected function toJson(RateInterface $rate)
+    {
+        return json_encode(array(
+            'sourceName' => $rate->getSourceName(),
+            'value' => $rate->getValue(),
+            'currencyCode' => $rate->getCurrencyCode(),
+            'rateType' => $rate->getRateType(),
+            'date' => $rate->getDate()->format('Y-m-d H:i:s'),
+            'baseCurrencyCode' => $rate->getBaseCurrencyCode(),
+            'createdAt' => $rate->getCreatedAt()->format('Y-m-d H:i:s'),
+            'modifiedAt' => $rate->getModifiedAt()->format('Y-m-d H:i:s')
+        ));
+    }
+
+    /**
+     * Deserialize JSON string to Rate
+     *
+     * @param string $json Serialized rate.
+     * @return Rate Deserialized rate.
+     */
+    protected function fromJson($json)
+    {
+        $data = json_decode($json, true);
+
+        return new Rate(
+            $data['sourceName'],
+            $data['value'],
+            $data['currencyCode'],
+            $data['rateType'],
+            \DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
+            $data['baseCurrencyCode'],
+            \DateTime::createFromFormat('Y-m-d H:i:s', $data['createdAt']),
+            \DateTime::createFromFormat('Y-m-d H:i:s', $data['modifiedAt'])
+        );
+    }
+
+    /**
+     * Extract requested page from filter criteria.
+     *
+     * @param array $rates Rates to filter for pagination.
+     * @param array $criteria Filter criteria.
+     * @return RateInterface[] Paginated rates.
+     */
+    protected function paginate(array $rates, $criteria)
+    {
+        if (!array_key_exists('offset', $criteria) && !array_key_exists('limit', $criteria)) {
+            return $rates;
+        }
+
+        $range = array();
+        $offset = array_key_exists('offset', $criteria) ? $criteria['offset'] : 0;
+        $limit = min((array_key_exists('limit', $criteria) ? $criteria['limit'] : count($rates)) + $offset, count($rates));
+
+        for ($i = $offset; $i < $limit; $i++) {
+            $range[] = $rates[$i];
+        }
+
+        return $range;
     }
 }

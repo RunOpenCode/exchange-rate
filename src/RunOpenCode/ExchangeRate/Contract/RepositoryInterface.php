@@ -80,6 +80,8 @@ interface RepositoryInterface extends \Countable
      * * rateTypes, string
      * * sourceName, string
      * * sourceNames, array
+     * * limit, int
+     * * offset, int
      *
      * @param array $criteria Filtering criteria to apply.
      * @return RateInterface[]
