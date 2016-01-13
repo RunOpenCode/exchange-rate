@@ -44,6 +44,11 @@
         "mockery/mockery": "~0.9",
         "guzzlehttp/guzzle": "~6.1",
         "symfony/dom-crawler": "~3.0",
-        "symfony/css-selector": "~3.0"
+        "symfony/css-selector": "~3.0",
+        "runopencode/sax": "~1.0"
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "Implementation of National Bank of Serbia crawler depends on Guzzle.",
+        "runopencode/sax": "Implementation of National Bank of Serbia crawler depends on SAX parser."
     }
 }
