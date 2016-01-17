@@ -11,6 +11,7 @@ namespace RunOpenCode\ExchangeRate\Registry;
 
 use RunOpenCode\ExchangeRate\Configuration;
 use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
+use RunOpenCode\ExchangeRate\Utils\ConfigurationFilterUtil;
 
 /**
  * Class RatesConfigurationRegistry
@@ -19,22 +20,20 @@ use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
  *
  * @package RunOpenCode\ExchangeRate\Registry
  */
-class RatesConfigurationRegistry implements RatesConfigurationRegistryInterface
+final class RatesConfigurationRegistry implements RatesConfigurationRegistryInterface
 {
     /**
      * @var Configuration[]
      */
-    protected $configurations;
+    private $configurations;
 
-    /**
-     * @var array
-     */
-    protected $aliases;
-
-    public function __construct()
+    public function __construct(array $configurations = array())
     {
         $this->configurations = array();
-        $this->aliases = array();
+
+        foreach ($configurations as $configuration) {
+            $this->add($configuration);
+        }
     }
 
     /**
@@ -42,44 +41,19 @@ class RatesConfigurationRegistry implements RatesConfigurationRegistryInterface
      */
     public function add(Configuration $configuration)
     {
-        if ($configuration->getAlias() !== null) {
-
-            if (array_key_exists($configuration->getAlias(), $this->aliases)) {
-                throw new \RuntimeException(sprintf('Rate with alias "%s" already exists.', $configuration->getAlias()));
-            }
-
-            $this->aliases[$configuration->getAlias()] = $configuration;
-        }
-
         $this->configurations[] = $configuration;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function find($sourceName)
+    public function all(array $filter = array())
     {
-        $result = array();
-
-        /**
-         * @var Configuration $configuration
-         */
-        foreach ($this->configurations as $configuration) {
-
-            if ($configuration->getSource() === $sourceName) {
-                $result[] = $configuration;
-            }
+        if (count($filter) === 0) {
+            return $this->configurations;
         }
 
-        return $result;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function all()
-    {
-        return $this->configurations;
+        return $this->filter($this->configurations, $filter);
     }
 
     /**
@@ -88,5 +62,29 @@ class RatesConfigurationRegistry implements RatesConfigurationRegistryInterface
     public function getIterator()
     {
         return new \ArrayIterator($this->configurations);
+    }
+
+    /**
+     * Get configurations that matches given filter criteria.
+     *
+     * @param Configuration[] $configurations Configurations to filter.
+     * @param array $criteria Filter criteria.
+     * @return Configuration[] Matched configurations.
+     */
+    private function filter($configurations, array $criteria)
+    {
+        $result = array();
+
+        /**
+         * @var Configuration $configuration
+         */
+        foreach ($configurations as $configuration) {
+
+            if (ConfigurationFilterUtil::matches($configuration, $criteria)) {
+                $result[] = $configuration;
+            }
+        }
+
+        return $result;
     }
 }

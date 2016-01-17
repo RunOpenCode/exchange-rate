@@ -9,7 +9,6 @@
  */
 namespace RunOpenCode\ExchangeRate;
 
-use RunOpenCode\ExchangeRate\Contract\AliasRegistryInterface;
 use RunOpenCode\ExchangeRate\Contract\ManagerInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorsRegistryInterface;
@@ -19,7 +18,6 @@ use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
-use RunOpenCode\ExchangeRate\Registry\AliasRegistry;
 use RunOpenCode\ExchangeRate\Registry\SourcesRegistry;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
@@ -59,11 +57,6 @@ class Manager implements ManagerInterface
      */
     protected $configurations;
 
-    /**
-     * @var AliasRegistryInterface
-     */
-    protected $aliasRegistry;
-
     public function __construct($baseCurrency, RepositoryInterface $repository, SourcesRegistryInterface $sources, ProcessorsRegistryInterface $processors, RatesConfigurationRegistryInterface $configurations)
     {
         $this->baseCurrency = CurrencyCodeUtil::clean($baseCurrency);
@@ -71,7 +64,6 @@ class Manager implements ManagerInterface
         $this->configurations = $configurations;
         $this->sources = $sources;
         $this->processors = $processors;
-        $this->aliasRegistry = new AliasRegistry($this, $this->configurations);
     }
 
     /**
@@ -123,14 +115,6 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function alias()
-    {
-        return $this->aliasRegistry;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function fetch($sourceName = null, $date = null)
     {
         $rates = array();
@@ -138,8 +122,11 @@ class Manager implements ManagerInterface
         /**
          * @var SourceInterface $source
          */
-        foreach (SourcesRegistry::filter($this->sources, $sourceName) as $source) {
-            $configurations = $this->configurations->find($source->getName());
+        foreach ($this->sources->all((is_string($sourceName) ? array($sourceName) : $sourceName)) as $source) {
+
+            $configurations = $this->configurations->all(array(
+                'sourceName' => $source->getName()
+            ));
 
             /**
              * @var Configuration $configuration

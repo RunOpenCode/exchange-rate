@@ -9,7 +9,7 @@
  */
 namespace RunOpenCode\ExchangeRate\Processor;
 
-use RunOpenCode\AssetsInjection\Exception\ConfigurationException;
+use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;

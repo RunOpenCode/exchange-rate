@@ -44,7 +44,11 @@ interface SourcesRegistryInterface extends \IteratorAggregate
     /**
      * Get all sources.
      *
+     * Available filter criterias:
+     * * name: string
+     * * names: string[]
+     *
      * @return SourceInterface[]
      */
-    public function all();
+    public function all(array $filter = array());
 }

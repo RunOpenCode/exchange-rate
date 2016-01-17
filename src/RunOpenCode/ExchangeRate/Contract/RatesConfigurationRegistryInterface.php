@@ -28,17 +28,18 @@ interface RatesConfigurationRegistryInterface extends \IteratorAggregate
     public function add(Configuration $configuration);
 
     /**
-     * Get rate configurations by source name.
-     *
-     * @param string $sourceName Source name.
-     * @return Configuration[]
-     */
-    public function find($sourceName);
-
-    /**
      * Get all rates configurations.
      *
+     * Available filter criterias:
+     * * sourceName: string
+     * * sourceNames: string[]
+     * * currencyCode: string
+     * * currencyCodes: string[]
+     * * rateType: string
+     * * rateTypes: string[]
+     *
+     * @param array $filter Filter criteria.
      * @return Configuration[]
      */
-    public function all();
+    public function all(array $filter = array());
 }

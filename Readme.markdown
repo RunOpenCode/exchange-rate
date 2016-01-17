@@ -16,8 +16,3 @@ Exchange rate
 ----------------
 
 This library is still in development process.
-
-
-
-
-

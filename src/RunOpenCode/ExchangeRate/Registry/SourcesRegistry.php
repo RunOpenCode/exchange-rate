@@ -12,6 +12,7 @@ namespace RunOpenCode\ExchangeRate\Registry;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
+use RunOpenCode\ExchangeRate\Utils\SourceFilterUtil;
 
 /**
  * Class SourcesRegistry
@@ -73,9 +74,13 @@ final class SourcesRegistry implements SourcesRegistryInterface
     /**
      * {@inheritdoc}
      */
-    public function all()
+    public function all(array $filter = array())
     {
-        return $this->sources;
+        if (count($filter) === 0) {
+            return $this->sources;
+        }
+
+        return $this->filter($this->sources, $filter);
     }
 
     /**
@@ -89,31 +94,24 @@ final class SourcesRegistry implements SourcesRegistryInterface
     /**
      * Filter sources.
      *
-     * @param SourcesRegistryInterface $registry Sources collection.
-     * @param string|array|null $names Source names to keep.
+     * Available filter criteria:
+     * * name: string
+     * * names: string[]
+     *
+     * @param SourceInterface[] $sources Sources to filter.
+     * @param array $filters Filter criteria.
      *
      * @return SourceInterface[]
-     *
-     * @throws \InvalidArgumentException
      */
-    public static function filter(SourcesRegistryInterface $registry, $names = null)
+    private function filter($sources, array $filters = array())
     {
-        if ($names === null) {
-            return $registry->all();
-        }
-
-        if (!is_array($names)) {
-            $names = array($names);
-        }
-
-        if (count($names) === 0) {
-            throw new \InvalidArgumentException('You have to provide either name of source to keep, of array of names of sources to keep.');
-        }
-
         $result = array();
 
-        foreach ($names as $name) {
-            $result[] = $registry->get($name);
+        foreach ($sources as $source) {
+
+            if (SourceFilterUtil::matches($source, $filters)) {
+                $result[] = $source;
+            }
         }
 
         return $result;

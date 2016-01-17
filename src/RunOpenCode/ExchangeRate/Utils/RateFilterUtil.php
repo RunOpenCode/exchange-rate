@@ -20,6 +20,8 @@ use RunOpenCode\ExchangeRate\Contract\RateInterface;
  */
 final class RateFilterUtil
 {
+    use FilterUtilHelper;
+
     private function __construct() { }
 
     /**
@@ -69,54 +71,5 @@ final class RateFilterUtil
         }
 
         return $date->format('Y-m-d') === $rate->getDate()->format('Y-m-d');
-    }
-
-    /**
-     * Check if array|string criteria is matched.
-     *
-     * @param string $key Array|string criteria key.
-     * @param RateInterface $rate Rate to check for match.
-     * @param array $criteria Filter criterias.
-     * @return bool TRUE if there is a match.
-     */
-    private static function matchesArrayCriteria($key, RateInterface $rate, array $criteria)
-    {
-        $criteria = self::extractArrayCriteria($key, $criteria);
-
-        if (count($criteria) === 0) {
-            return true;
-        }
-
-        return in_array($rate->{sprintf('get%s', ucfirst($key))}(), $criteria, true);
-    }
-
-    /**
-     * Extract array criteria from criterias.
-     *
-     * @param string $key Criteria name.
-     * @param array $criteria Filter criterias.
-     * @return array Extracted array criterias.
-     */
-    private static function extractArrayCriteria($key, array $criteria)
-    {
-        if (!empty($criteria[$key])) {
-            return array($criteria[$key]);
-        } elseif (!empty($criteria[$key . 's'])) {
-            return $criteria[$key . 's'];
-        }
-
-        return array();
-    }
-
-    /**
-     * Extract date from filter criterias.
-     *
-     * @param string $key Criteria name.
-     * @param array $criteria Filter criterias.
-     * @return \DateTime|null Extracted date criteria.
-     */
-    private static function extractDateCriteria($key, array $criteria)
-    {
-        return (!empty($criteria[$key])) ? $criteria[$key] : null;
     }
 }
