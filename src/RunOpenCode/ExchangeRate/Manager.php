@@ -111,7 +111,7 @@ class Manager implements ManagerInterface
             } catch (\Exception $e) {
                 $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d'));
                 $this->getLogger()->critical($message);
-                throw new ExchangeRateException($message, $e);
+                throw new ExchangeRateException($message, 0, $e);
             }
         }
     }
@@ -123,13 +123,16 @@ class Manager implements ManagerInterface
     {
         $rates = array();
 
-        /**
-         * @var SourceInterface $source
-         */
-        foreach ($this->sources->all((is_string($sourceName) ? array($sourceName) : $sourceName)) as $source) {
+        $sourceNames = ($sourceName === null) ? array_map(function(SourceInterface $source) {
+            return $source->getName();
+        }, $this->sources->all()) : (array) $sourceName;
+
+        foreach ($sourceNames as $sourceName) {
+
+            $source = $this->sources->get($sourceName);
 
             $configurations = $this->configurations->all(array(
-                'sourceName' => $source->getName()
+                'sourceName' => $sourceName
             ));
 
             /**
@@ -143,7 +146,7 @@ class Manager implements ManagerInterface
         /**
          * @var ProcessorInterface $processor
          */
-        foreach ($this->processors as $processor) {
+        foreach ($this->processors->all() as $processor) {
             $rates = $processor->process($this->baseCurrency, $this->configurations, $rates);
         }
 
