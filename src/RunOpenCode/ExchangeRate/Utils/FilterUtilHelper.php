@@ -52,7 +52,7 @@ trait FilterUtilHelper
      * Check if array|string criteria is matched.
      *
      * @param string $key Array|string criteria key.
-     * @param mixed $object Object to check for match.
+     * @param object $object Object to check for match.
      * @param array $criteria Filter criterias.
      * @return bool TRUE if there is a match.
      */
