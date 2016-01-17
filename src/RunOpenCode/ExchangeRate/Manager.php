@@ -87,7 +87,7 @@ class Manager implements ManagerInterface
      */
     public function latest($sourceName, $currencyCode, $rateType = 'default')
     {
-        return $this->repository->latest(CurrencyCodeUtil::clean($currencyCode), $rateType);
+        return $this->repository->latest($sourceName, CurrencyCodeUtil::clean($currencyCode), $rateType);
     }
 
     /**
@@ -98,18 +98,22 @@ class Manager implements ManagerInterface
         $currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $today = new \DateTime('now');
 
-        if ($this->has($currencyCode, $rateType, $today)) {
-            return $this->get($currencyCode, $today, $rateType);
+        if ($this->has($sourceName, $currencyCode, $today, $rateType)) {
+            return $this->get($sourceName, $currencyCode, $today, $rateType);
         }
 
         if ((int)$today->format('N') >= 6) {
-            $today = new \DateTime('last Friday');
-            return $this->get($currencyCode, $today, $rateType);
-        }
 
-        $message = sprintf('Rate for currency code "%s" of type "%s" is not available for today "%s".', $currencyCode, $rateType, date('Y-m-d'));
-        $this->getLogger()->critical($message);
-        throw new ExchangeRateException($message);
+            $today = new \DateTime('last Friday');
+
+            try {
+                return $this->get($sourceName, $currencyCode, $today, $rateType);
+            } catch (\Exception $e) {
+                $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d'));
+                $this->getLogger()->critical($message);
+                throw new ExchangeRateException($message, $e);
+            }
+        }
     }
 
     /**
