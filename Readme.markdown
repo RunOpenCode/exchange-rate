@@ -71,14 +71,14 @@ bank mentioned above, National Bank of Serbia, provides 5 different rates.
 - A rate have its base currency (that is usually a currency of the country in which bank operates)
 - Currency code and value, of course, for exchange, and date when that rate is valid.
 
-# Manger
+# Manager
 
-Manger follows rate anatomy, and exposes API which allows you to query for rate which you need:
+Manager follows rate anatomy, and exposes API which allows you to query for rate which you need:
   
-- `Manger::get($sourceName, $currencyCode, $date, $rateType)` will provide you with exchange rate from 
+- `Manager::get($sourceName, $currencyCode, $date, $rateType)` will provide you with exchange rate from 
 specific source, on provided date of provided rate type.
-- `Manger::latest($sourceName, $currencyCode, $rateType)` will provide you with latest available rate.
-- `Manger::today($sourceName, $currencyCode, $rateType)` will provide you with rate that should be used on current system
+- `Manager::latest($sourceName, $currencyCode, $rateType)` will provide you with latest available rate.
+- `Manager::today($sourceName, $currencyCode, $rateType)` will provide you with rate that should be used on current system
 date. That means that if it is a Saturday or Sunday, and if rates are not available, a rate from last Friday will be used. 
 
 Note that rate type and date are optional parameters in interface signature. If date is not provided, current date will
@@ -138,17 +138,25 @@ As in example above, you can make a similar script that will be executed by cron
         
 # Some design notes and guidelines
 
-When you design a system that uses fetch rates from this library, and even if you use DB as storage for rates - DO NOT
+When you design a system that uses rates from this library, and even if you use DB as storage for rates persistence - DO NOT
 establish relation with rates. That is very bad practice! If you have, per example, an invoice in foreign currency, do copy
-all data from Rate to your invoice model, do not reference Rate via foreign key, or by using any other method.
+all data from Rate to your invoice model, do not reference Rate via foreign key, or by any other method.
 
 The reason for that is to have data consistency and flexibility:
 
 1. Your client can agree with buyer/seller specific exchange rate. This is quite possible and legit, if relation is used
 than this request can not be supported.
-2. If error in exchange rate value is spotted and if relation exists, it could not be corrected, because all issued invoices
-would have incorrect data.
+2. If error is spotted in exchange rate value and if relation exists, it could not be corrected, because all issued and paid
+invoices referencing that rate would be affected. That would mean that those invoices would have to be stored and re-issued,
+and user of system would be forced to do additional explaining to his clients. 
         
-However - if there is a data redundancy, that is, you copy all values from Rate to your model, all issues stated above
-would not exists.
+However - if there is a data redundancy, that is, you copy all values from Rate to your model, all possibilities for 
+occurrence of issues stated above would be avoided.
 
+# Known implementations of sources
+
+Below is the list of known implementations of exchange rates sources for this library which you can use in your projects:
+ 
+- [National Bank of Serbia](http://www.nbs.rs), available via packagist: `runopencode/exchange-rate-nbs`, 
+source via [Github](https://github.com/RunOpenCode/exchange-rate-nbs), courtesy of RunOpenCode.
+ 
