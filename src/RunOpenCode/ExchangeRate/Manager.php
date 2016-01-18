@@ -103,17 +103,13 @@ class Manager implements ManagerInterface
         }
 
         if ((int)$today->format('N') >= 6) {
-
             $today = new \DateTime('last Friday');
-
-            try {
-                return $this->get($sourceName, $currencyCode, $today, $rateType);
-            } catch (\Exception $e) {
-                $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d'));
-                $this->getLogger()->critical($message);
-                throw new ExchangeRateException($message, 0, $e);
-            }
+            return $this->get($sourceName, $currencyCode, $today, $rateType);
         }
+
+        $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d'));
+        $this->getLogger()->critical($message);
+        throw new ExchangeRateException($message);
     }
 
     /**
