@@ -160,3 +160,10 @@ Below is the list of known implementations of exchange rates sources for this li
 - [National Bank of Serbia](http://www.nbs.rs), available via packagist: `runopencode/exchange-rate-nbs`, 
 source via [Github](https://github.com/RunOpenCode/exchange-rate-nbs), courtesy of RunOpenCode.
  
+# Known bridges 
+
+Below is the list of known bridges for PHP frameworks:
+
+- [Symfony Bundle](http://symfony.com), available via packagist: `runopencode/exchange-rate-bundle`, source via 
+[Github](https://github.com/RunOpenCode/exchange-rate-bundle), courtesy of RunOpenCode.
+
