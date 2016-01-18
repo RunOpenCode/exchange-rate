@@ -71,14 +71,14 @@ bank mentioned above, National Bank of Serbia, provides 5 different rates.
 - A rate have its base currency (that is usually a currency of the country in which bank operates)
 - Currency code and value, of course, for exchange, and date when that rate is valid.
 
-# Manger
+# Manager
 
-Manger follows rate anatomy, and exposes API which allows you to query for rate which you need:
+Manager follows rate anatomy, and exposes API which allows you to query for rate which you need:
   
-- `Manger::get($sourceName, $currencyCode, $date, $rateType)` will provide you with exchange rate from 
+- `Manager::get($sourceName, $currencyCode, $date, $rateType)` will provide you with exchange rate from 
 specific source, on provided date of provided rate type.
-- `Manger::latest($sourceName, $currencyCode, $rateType)` will provide you with latest available rate.
-- `Manger::today($sourceName, $currencyCode, $rateType)` will provide you with rate that should be used on current system
+- `Manager::latest($sourceName, $currencyCode, $rateType)` will provide you with latest available rate.
+- `Manager::today($sourceName, $currencyCode, $rateType)` will provide you with rate that should be used on current system
 date. That means that if it is a Saturday or Sunday, and if rates are not available, a rate from last Friday will be used. 
 
 Note that rate type and date are optional parameters in interface signature. If date is not provided, current date will
