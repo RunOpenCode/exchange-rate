@@ -147,5 +147,7 @@ class Manager implements ManagerInterface
         }
 
         $this->repository->save($rates);
+
+        return $rates;
     }
 }

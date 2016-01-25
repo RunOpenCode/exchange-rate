@@ -100,6 +100,7 @@ interface ManagerInterface
      *
      * @param string|array|null $sourceName Name of source from where rates should be fetched from. If none is provided, rates will be fetched from all sources.
      * @param null|\DateTime $date Date for which rates should be fetched. If not provieded, current date will be used.
+     * @return RateInterface[] Fetched and processed rates.
      *
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
