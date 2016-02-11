@@ -160,7 +160,8 @@ final class CurrencyCodeUtil
         'LUF' => 'Luxembourg Franc',
         'PTE' => 'Portugal Escudo',
         'ESP' => 'Spain Peseta',
-        'XDR' => 'IMF Special Drawing Rights'
+        'XDR' => 'IMF Special Drawing Rights',
+        'SKK' => 'Slovak Koruna'
     );
 
     /**
