@@ -69,7 +69,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function has($sourceName, $currencyCode, $date = null, $rateType = 'default')
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
     {
         return $this->repository->has($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
@@ -77,7 +77,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function get($sourceName, $currencyCode, $date = null, $rateType = 'default')
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
     {
         return $this->repository->get($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
@@ -103,8 +103,7 @@ class Manager implements ManagerInterface
         }
 
         if ((int)$today->format('N') >= 6) {
-            $today = new \DateTime('last Friday');
-            return $this->get($sourceName, $currencyCode, $today, $rateType);
+            return $this->get($sourceName, $currencyCode, new \DateTime('last Friday'), $rateType);
         }
 
         $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d'));
@@ -115,7 +114,29 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function fetch($sourceName = null, $date = null)
+    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = 'default')
+    {
+        $currencyCode = CurrencyCodeUtil::clean($currencyCode);
+
+        if ($this->has($sourceName, $currencyCode, $date, $rateType)) {
+            return $this->get($sourceName, $currencyCode, $date, $rateType);
+        }
+
+        if ((int)$date->format('N') === 6) {
+            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('PT1D')), $rateType);
+        } elseif ((int)$date->format('N') === 7) {
+            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('PT2D')), $rateType);
+        }
+
+        $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for historical date "%s".', $currencyCode, $rateType, $sourceName, $date->format('Y-m-d'));
+        $this->getLogger()->critical($message);
+        throw new ExchangeRateException($message);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fetch($sourceName = null, \DateTime $date = null)
     {
         $rates = array();
 

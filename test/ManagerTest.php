@@ -77,6 +77,36 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     */
+    public function historical()
+    {
+        $expectedMock = $this->getMockBuilder(RateInterface::class)->getMock();
+        $repository = $this->getMockBuilder(RepositoryInterface::class)->getMock();
+        $repository->method('has')->willReturn((int)date('N') < 6);
+        $repository->expects($spy = $this->any())->method('get')->willReturn($expectedMock);
+
+        $manager = new Manager(
+            'RSD',
+            $repository,
+            $this->getMockBuilder(SourcesRegistryInterface::class)->getMock(),
+            $this->getMockBuilder(ProcessorsRegistryInterface::class)->getMock(),
+            $this->getMockBuilder(RatesConfigurationRegistryInterface::class)->getMock()
+        );
+
+        $this->assertSame($expectedMock, $manager->historical('test_source', 'EUR', new \DateTime('now')));
+
+        $invocations = $spy->getInvocations();
+        $invocations = end($invocations);
+
+        $this->assertSame('test_source', $invocations->parameters[0]);
+        $this->assertSame('EUR', $invocations->parameters[1]);
+
+        $today = new \DateTime(((int)date('N') < 6 ? 'now' : 'last Friday'));
+        $this->assertSame($today->format('Y-m-d'), $invocations->parameters[2]->format('Y-m-d'));
+    }
+
+    /**
+     * @test
      *
      * @expectedException \RunOpenCode\ExchangeRate\Exception\ExchangeRateException
      */

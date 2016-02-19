@@ -75,14 +75,16 @@ bank mentioned above, National Bank of Serbia, provides 5 different rates.
 
 Manager follows rate anatomy, and exposes API which allows you to query for rate which you need:
   
-- `Manager::get($sourceName, $currencyCode, $date, $rateType)` will provide you with exchange rate from 
+- `Manager::get($sourceName, $currencyCode, \DateTime $date, $rateType)` will provide you with exchange rate from 
 specific source, on provided date of provided rate type.
 - `Manager::latest($sourceName, $currencyCode, $rateType)` will provide you with latest available rate.
 - `Manager::today($sourceName, $currencyCode, $rateType)` will provide you with rate that should be used on current system
-date. That means that if it is a Saturday or Sunday, and if rates are not available, a rate from last Friday will be used. 
+date. That means that if it is a Saturday or Sunday, and if rates are not available, a rate from last Friday will be used.
+- `Manager::historical($sourceName, $currencyCode, \DateTime $date, $rateType)` will provide you with rate that should be 
+used on given date. That means that if it is a Saturday or Sunday, and if rates are not available, 
+a rate from Friday before given date will be used.  
 
-Note that rate type and date are optional parameters in interface signature. If date is not provided, current date will
-be used. System defines 'default' rate, considering that every Source will provide you with at least one rate type. Every
+System defines 'default' rate, considering that every Source will provide you with at least one rate type. Every
 implementation should declare one of available rate types as 'default'. Recommendation is to consider 'median' rate type
 as default.
 
@@ -159,6 +161,8 @@ Below is the list of known implementations of exchange rates sources for this li
  
 - [National Bank of Serbia](http://www.nbs.rs), available via packagist: `runopencode/exchange-rate-nbs`, 
 source via [Github](https://github.com/RunOpenCode/exchange-rate-nbs), courtesy of RunOpenCode.
+- [Banca Intesa Serbia](http://www.bancaintesa.rs), available via packagist: `runopencode/exchange-rate-intesa-rs`, 
+source via [Github](https://github.com/RunOpenCode/exchange-rate-intesa-rs), courtesy of RunOpenCode
  
 # Known bridges 
 

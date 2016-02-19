@@ -37,14 +37,14 @@ interface ManagerInterface
      * @throws UnknownRateTypeException
      * @throws SourceNotAvailableException
      */
-    public function has($sourceName, $currencyCode, $date = null, $rateType = 'default');
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default');
 
     /**
      * Get rate for currency on given date.
      *
      * @param string $sourceName Source from which rate is fetched.
      * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param \DateTime|null $date Date of rate, or current date is going to be used.
+     * @param \DateTime $date Date of rate.
      * @param string $rateType Type of rate.
      *
      * @return RateInterface
@@ -54,7 +54,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function get($sourceName, $currencyCode, $date = null, $rateType = 'default');
+    public function get($sourceName, $currencyCode, \DateTime $date, $rateType = 'default');
 
     /**
      * Get latest available rate.
@@ -94,6 +94,28 @@ interface ManagerInterface
     public function today($sourceName, $currencyCode, $rateType = 'default');
 
     /**
+     * Get rate which ought to be used on given day.
+     *
+     * According to common business practice, exchange rate is determined until 2 PM of current day (or before) which
+     * will be used for next business day. Next business day starts at 00:00 AM.
+     *
+     * For Saturday and Sunday, rate from Friday is used.
+     *
+     * @param string $sourceName Source from which rate is fetched.
+     * @param string $currencyCode Currency code for which exchange rate is required.
+     * @param \DateTime $date Date of rate.
+     * @param string $rateType Type of rate.
+     *
+     * @return RateInterface
+     *
+     * @throws UnknownCurrencyCodeException
+     * @throws UnknownRateTypeException
+     * @throws SourceNotAvailableException
+     * @throws ExchangeRateException
+     */
+    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = 'default');
+
+    /**
      * Fetch rates from sources.
      *
      * Execute this method once every day, after 2 PM.
@@ -105,5 +127,5 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function fetch($sourceName = null, $date = null);
+    public function fetch($sourceName = null, \DateTime $date = null);
 }
