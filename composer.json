@@ -37,6 +37,7 @@
         "phpunit/phpunit": "~4.8"
     },
     "suggest": {
+        "runopencode/exchange-rate-bundle": "Exchange rate Symfony bundle.",
         "runopencode/exchange-rate-nbs": "Provides you with exchange rates from National Bank of Serbia.",
         "runopencode/exchange-rate-intesa-rs": "Provides you with exchange rates from Banca Intesa Serbia."
     }
