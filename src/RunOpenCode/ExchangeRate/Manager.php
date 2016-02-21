@@ -123,9 +123,9 @@ class Manager implements ManagerInterface
         }
 
         if ((int)$date->format('N') === 6) {
-            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('PT1D')), $rateType);
+            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('P1D')), $rateType);
         } elseif ((int)$date->format('N') === 7) {
-            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('PT2D')), $rateType);
+            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('P2D')), $rateType);
         }
 
         $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for historical date "%s".', $currencyCode, $rateType, $sourceName, $date->format('Y-m-d'));
