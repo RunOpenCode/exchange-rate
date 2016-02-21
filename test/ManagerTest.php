@@ -52,7 +52,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $expectedMock = $this->getMockBuilder(RateInterface::class)->getMock();
         $repository = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $repository->method('has')->willReturn((int)date('N') < 6);
+        $repository->method('has')->willReturnOnConsecutiveCalls((int)date('N') < 6, true);
         $repository->expects($spy = $this->any())->method('get')->willReturn($expectedMock);
 
         $manager = new Manager(
@@ -82,7 +82,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
     {
         $expectedMock = $this->getMockBuilder(RateInterface::class)->getMock();
         $repository = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $repository->method('has')->willReturn((int)date('N') < 6);
+        $repository->method('has')->willReturnOnConsecutiveCalls((int)date('N') < 6, true);
         $repository->expects($spy = $this->any())->method('get')->willReturn($expectedMock);
 
         $manager = new Manager(

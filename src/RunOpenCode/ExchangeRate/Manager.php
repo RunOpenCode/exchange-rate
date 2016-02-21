@@ -102,8 +102,8 @@ class Manager implements ManagerInterface
             return $this->get($sourceName, $currencyCode, $today, $rateType);
         }
 
-        if ((int)$today->format('N') >= 6) {
-            return $this->get($sourceName, $currencyCode, new \DateTime('last Friday'), $rateType);
+        if ((int)$today->format('N') >= 6 && $this->has($sourceName, $currencyCode, $lastFriday = new \DateTime('last Friday'), $rateType)) {
+            return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
         }
 
         $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d'));
@@ -122,10 +122,10 @@ class Manager implements ManagerInterface
             return $this->get($sourceName, $currencyCode, $date, $rateType);
         }
 
-        if ((int)$date->format('N') === 6) {
-            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('P1D')), $rateType);
-        } elseif ((int)$date->format('N') === 7) {
-            $this->get($sourceName, $currencyCode, $date->sub(new \DateInterval('P2D')), $rateType);
+        if ((int)$date->format('N') === 6 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P1D')), $rateType)) {
+            return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
+        } elseif ((int)$date->format('N') === 7 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P2D')), $rateType)) {
+            return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
         }
 
         $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for historical date "%s".', $currencyCode, $rateType, $sourceName, $date->format('Y-m-d'));
