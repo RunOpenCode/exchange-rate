@@ -223,10 +223,10 @@ class FileRepository implements RepositoryInterface
     /**
      * Builds rate key to speed up search.
      *
-     * @param null $currencyCode
-     * @param null $date
-     * @param null $rateType
-     * @param null $sourceName
+     * @param string|null|RateInterface $currencyCode
+     * @param \DateTime|null $date
+     * @param string|null $rateType
+     * @param string|null $sourceName
      * @return string
      */
     protected function getRateKey($currencyCode = null, $date = null, $rateType = null, $sourceName = null)
