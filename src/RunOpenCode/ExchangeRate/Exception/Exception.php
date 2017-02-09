@@ -9,12 +9,14 @@
  */
 namespace RunOpenCode\ExchangeRate\Exception;
 
+use RunOpenCode\ExchangeRate\Contract\ExceptionInterface;
+
 /**
- * Class UnknownCurrencyCodeException
+ * Class Exception
  *
  * @package RunOpenCode\ExchangeRate\Exception
  */
-class UnknownCurrencyCodeException extends ExchangeRateException
+class Exception extends \Exception implements ExceptionInterface
 {
 
 }

@@ -2,13 +2,14 @@
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 namespace RunOpenCode\ExchangeRate\Contract;
 
+use RunOpenCode\ExchangeRate\Enum\RateType;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
@@ -37,7 +38,7 @@ interface ManagerInterface
      * @throws UnknownRateTypeException
      * @throws SourceNotAvailableException
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default');
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT);
 
     /**
      * Get rate for currency on given date.
@@ -54,7 +55,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function get($sourceName, $currencyCode, \DateTime $date, $rateType = 'default');
+    public function get($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::DEFAULT);
 
     /**
      * Get latest available rate.
@@ -70,7 +71,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function latest($sourceName, $currencyCode, $rateType = 'default');
+    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT);
 
     /**
      * Get rate which ought to be used today.
@@ -91,7 +92,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function today($sourceName, $currencyCode, $rateType = 'default');
+    public function today($sourceName, $currencyCode, $rateType = RateType::DEFAULT);
 
     /**
      * Get rate which ought to be used on given day.
@@ -113,7 +114,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = 'default');
+    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::DEFAULT);
 
     /**
      * Fetch rates from sources.

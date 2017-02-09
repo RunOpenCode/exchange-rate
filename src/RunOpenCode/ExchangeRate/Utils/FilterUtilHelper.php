@@ -2,12 +2,14 @@
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 namespace RunOpenCode\ExchangeRate\Utils;
+
+use RunOpenCode\ExchangeRate\Exception\RuntimeException;
 
 /**
  * Class BaseFilterUtil
@@ -67,7 +69,7 @@ trait FilterUtilHelper
         $getter = sprintf('get%s', ucfirst($key));
 
         if (!method_exists($object, $getter)) {
-            throw new \RuntimeException(sprintf('Object instance of "%s" does not have required getter "%s" to be used for filtering.', get_class($object), $getter));
+            throw new RuntimeException(sprintf('Object instance of "%s" does not have required getter "%s" to be used for filtering.', get_class($object), $getter));
         }
 
         return in_array($object->{$getter}(), $criteria, true);

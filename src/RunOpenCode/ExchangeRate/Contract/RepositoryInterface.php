@@ -2,12 +2,14 @@
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 namespace RunOpenCode\ExchangeRate\Contract;
+
+use RunOpenCode\ExchangeRate\Enum\RateType;
 
 /**
  * Interface RepositoryInterface
@@ -42,7 +44,7 @@ interface RepositoryInterface extends \Countable
      *
      * @return bool
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default');
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT);
 
     /**
      * Get rate for currency on given date.
@@ -54,7 +56,7 @@ interface RepositoryInterface extends \Countable
      *
      * @return RateInterface
      */
-    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default');
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT);
 
     /**
      * Get latest available rate.
@@ -65,7 +67,7 @@ interface RepositoryInterface extends \Countable
      *
      * @return RateInterface
      */
-    public function latest($sourceName, $currencyCode, $rateType = 'default');
+    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT);
 
     /**
      * Get all rates. If filtering criteria is provided, return matches only.

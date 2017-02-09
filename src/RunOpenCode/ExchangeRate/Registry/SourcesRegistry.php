@@ -2,7 +2,7 @@
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,6 +11,7 @@ namespace RunOpenCode\ExchangeRate\Registry;
 
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
+use RunOpenCode\ExchangeRate\Exception\RuntimeException;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
 use RunOpenCode\ExchangeRate\Utils\SourceFilterUtil;
 
@@ -43,7 +44,7 @@ final class SourcesRegistry implements SourcesRegistryInterface
     public function add(SourceInterface $source)
     {
         if ($this->has($source->getName())) {
-            throw new \RuntimeException(sprintf('Source "%s" is already registered.', $source->getName()));
+            throw new RuntimeException(sprintf('Source "%s" is already registered.', $source->getName()));
         }
 
         $this->sources[$source->getName()] = $source;

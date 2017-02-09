@@ -7,14 +7,14 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RunOpenCode\ExchangeRate\Exception;
+namespace RunOpenCode\ExchangeRate\Contract;
 
 /**
- * Class UnknownCurrencyCodeException
+ * Interface ExceptionInterface
  *
- * @package RunOpenCode\ExchangeRate\Exception
+ * @package RunOpenCode\ExchangeRate\Contract
  */
-class UnknownCurrencyCodeException extends ExchangeRateException
+interface ExceptionInterface
 {
 
 }

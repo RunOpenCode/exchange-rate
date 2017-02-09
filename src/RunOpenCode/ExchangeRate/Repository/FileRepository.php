@@ -2,7 +2,7 @@
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,7 +11,9 @@ namespace RunOpenCode\ExchangeRate\Repository;
 
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
+use RunOpenCode\ExchangeRate\Enum\RateType;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
+use RunOpenCode\ExchangeRate\Exception\RuntimeException;
 use RunOpenCode\ExchangeRate\Utils\RateFilterUtil;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
@@ -103,7 +105,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
     {
         if ($date === null) {
             $date = new \DateTime('now');
@@ -115,7 +117,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
     {
         if ($date === null) {
             $date = new \DateTime('now');
@@ -131,7 +133,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = 'default')
+    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT)
     {
         /**
          * @var RateInterface $rate
@@ -214,7 +216,7 @@ class FileRepository implements RepositoryInterface
             fclose($handle);
 
         } else {
-            throw new \RuntimeException(sprintf('Error opening file on path "%s".', $this->pathToFile));
+            throw new RuntimeException(sprintf('Error opening file on path "%s".', $this->pathToFile));
         }
 
         return $this->rates;
@@ -252,19 +254,19 @@ class FileRepository implements RepositoryInterface
     {
         /** @noinspection MkdirRaceConditionInspection */
         if (!file_exists(dirname($this->pathToFile)) && !mkdir(dirname($this->pathToFile), 0777, true)) {
-            throw new \RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
+            throw new RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
         }
 
         if (!file_exists($this->pathToFile) && !(touch($this->pathToFile) && chmod($this->pathToFile, 0777))) {
-            throw new \RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
+            throw new RuntimeException(sprintf('Could not create storage file on path "%s".', $this->pathToFile));
         }
 
         if (!is_readable($this->pathToFile)) {
-            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be readable.', $this->pathToFile));
+            throw new RuntimeException(sprintf('File on path "%s" for storing rates must be readable.', $this->pathToFile));
         }
 
         if (!is_writable($this->pathToFile)) {
-            throw new \RuntimeException(sprintf('File on path "%s" for storing rates must be writeable.', $this->pathToFile));
+            throw new RuntimeException(sprintf('File on path "%s" for storing rates must be writeable.', $this->pathToFile));
         }
     }
 
@@ -281,10 +283,10 @@ class FileRepository implements RepositoryInterface
             'value' => $rate->getValue(),
             'currencyCode' => $rate->getCurrencyCode(),
             'rateType' => $rate->getRateType(),
-            'date' => $rate->getDate()->format('Y-m-d H:i:s'),
+            'date' => $rate->getDate()->format(\DateTime::ATOM),
             'baseCurrencyCode' => $rate->getBaseCurrencyCode(),
-            'createdAt' => $rate->getCreatedAt()->format('Y-m-d H:i:s'),
-            'modifiedAt' => $rate->getModifiedAt()->format('Y-m-d H:i:s')
+            'createdAt' => $rate->getCreatedAt()->format(\DateTime::ATOM),
+            'modifiedAt' => $rate->getModifiedAt()->format(\DateTime::ATOM)
         ));
     }
 
@@ -303,10 +305,10 @@ class FileRepository implements RepositoryInterface
             $data['value'],
             $data['currencyCode'],
             $data['rateType'],
-            \DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
+            \DateTime::createFromFormat(\DateTime::ATOM, $data['date']),
             $data['baseCurrencyCode'],
-            \DateTime::createFromFormat('Y-m-d H:i:s', $data['createdAt']),
-            \DateTime::createFromFormat('Y-m-d H:i:s', $data['modifiedAt'])
+            \DateTime::createFromFormat(\DateTime::ATOM, $data['createdAt']),
+            \DateTime::createFromFormat(\DateTime::ATOM, $data['modifiedAt'])
         );
     }
 

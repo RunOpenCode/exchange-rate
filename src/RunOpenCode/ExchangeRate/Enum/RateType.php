@@ -7,14 +7,19 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace RunOpenCode\ExchangeRate\Exception;
+namespace RunOpenCode\ExchangeRate\Enum;
 
 /**
- * Class UnknownCurrencyCodeException
+ * Class RateType
  *
- * @package RunOpenCode\ExchangeRate\Exception
+ * @package RunOpenCode\ExchangeRate\Enum
  */
-class UnknownCurrencyCodeException extends ExchangeRateException
+final class RateType
 {
+    const DEFAULT = 'default';
 
+    private function __construct()
+    {
+        // noop
+    }
 }

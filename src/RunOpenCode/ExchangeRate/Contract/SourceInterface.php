@@ -2,7 +2,7 @@
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -10,6 +10,7 @@
 namespace RunOpenCode\ExchangeRate\Contract;
 
 use Psr\Log\LoggerAwareInterface;
+use RunOpenCode\ExchangeRate\Enum\RateType;
 use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
 use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
@@ -45,5 +46,5 @@ interface SourceInterface extends LoggerAwareInterface
      * @throws SourceNotAvailableException
      * @throws ConfigurationException
      */
-    public function fetch($currencyCode, $rateType = 'default', \DateTime $date = null);
+    public function fetch($currencyCode, $rateType = RateType::DEFAULT, \DateTime $date = null);
 }

@@ -2,7 +2,7 @@
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
- * (c) 2016 RunOpenCode
+ * (c) 2017 RunOpenCode
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,9 +16,9 @@ use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
+use RunOpenCode\ExchangeRate\Enum\RateType;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
-use RunOpenCode\ExchangeRate\Registry\SourcesRegistry;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 /**
@@ -69,7 +69,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
     {
         return $this->repository->has($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
@@ -77,7 +77,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = 'default')
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
     {
         return $this->repository->get($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
@@ -85,7 +85,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = 'default')
+    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT)
     {
         return $this->repository->latest($sourceName, CurrencyCodeUtil::clean($currencyCode), $rateType);
     }
@@ -93,7 +93,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function today($sourceName, $currencyCode, $rateType = 'default')
+    public function today($sourceName, $currencyCode, $rateType = RateType::DEFAULT)
     {
         $currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $today = new \DateTime('now');
@@ -114,7 +114,7 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = 'default')
+    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::DEFAULT)
     {
         $currencyCode = CurrencyCodeUtil::clean($currencyCode);
 
@@ -140,22 +140,22 @@ class Manager implements ManagerInterface
     {
         $rates = array();
 
-        $sourceNames = ($sourceName === null) ? array_map(function(SourceInterface $source) {
+        $filteredSourceNames = ($sourceName === null) ? array_map(function(SourceInterface $source) {
             return $source->getName();
         }, $this->sources->all()) : (array) $sourceName;
 
-        foreach ($sourceNames as $sourceName) {
+        foreach ($filteredSourceNames as $name) {
 
-            $source = $this->sources->get($sourceName);
+            $source = $this->sources->get($name);
 
-            $configurations = $this->configurations->all(array(
-                'sourceName' => $sourceName
+            $filteredConfigurations = $this->configurations->all(array(
+                'sourceName' => $name
             ));
 
             /**
              * @var Configuration $configuration
              */
-            foreach ($configurations as $configuration) {
+            foreach ($filteredConfigurations as $configuration) {
                 $rates[] = $source->fetch($configuration->getCurrencyCode(), $configuration->getRateType(), $date);
             }
         }
