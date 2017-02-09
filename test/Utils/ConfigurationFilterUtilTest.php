@@ -9,10 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Utils;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Configuration;
 use RunOpenCode\ExchangeRate\Utils\ConfigurationFilterUtil;
 
-class ConfigurationFilterUtilTest extends \PHPUnit_Framework_TestCase
+class ConfigurationFilterUtilTest extends TestCase
 {
     /**
      * @test

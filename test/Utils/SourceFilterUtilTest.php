@@ -9,10 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Utils;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Utils\SourceFilterUtil;
 
-class SourceFilterUtilTest extends \PHPUnit_Framework_TestCase
+class SourceFilterUtilTest extends TestCase
 {
     /**
      * @test

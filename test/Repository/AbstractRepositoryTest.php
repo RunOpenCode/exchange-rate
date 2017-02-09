@@ -2,10 +2,11 @@
 
 namespace RunOpenCode\ExchangeRate\Tests\Repository;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
-abstract class AbstractRepositoryTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractRepositoryTest extends TestCase
 {
     /**
      * @test

@@ -9,10 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Registry;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Registry\SourcesRegistry;
 
-class SourcesRegistryTest extends \PHPUnit_Framework_TestCase
+class SourcesRegistryTest extends TestCase
 {
     /**
      * @test

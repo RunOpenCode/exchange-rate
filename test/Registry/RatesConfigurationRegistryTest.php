@@ -9,10 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Registry;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Configuration;
 use RunOpenCode\ExchangeRate\Registry\RatesConfigurationRegistry;
 
-class RatesConfigurationRegistryTest extends \PHPUnit_Framework_TestCase
+class RatesConfigurationRegistryTest extends TestCase
 {
     /**
      * @test

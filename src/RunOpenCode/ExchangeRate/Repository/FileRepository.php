@@ -66,7 +66,7 @@ class FileRepository implements RepositoryInterface
          * @var RateInterface $rate
          */
         foreach ($rates as $rate) {
-            $this->rates[$this->getRateKey($rate)] = $rate;
+            $this->rates[$this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName())] = $rate;
         }
 
         usort($this->rates, function(RateInterface $rate1, RateInterface $rate2) {
@@ -96,7 +96,7 @@ class FileRepository implements RepositoryInterface
          * @var RateInterface $rate
          */
         foreach ($rates as $rate) {
-            unset($this->rates[$this->getRateKey($rate)]);
+            unset($this->rates[$this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName())]);
         }
 
         $this->save(array());
@@ -204,7 +204,7 @@ class FileRepository implements RepositoryInterface
 
                 $rate = $this->fromJson($line);
 
-                $this->rates[$this->getRateKey($rate)] = $rate;
+                $this->rates[$this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName())] = $rate;
 
                 $latestKey = sprintf('%s_%s_%s', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName());
 
@@ -225,21 +225,14 @@ class FileRepository implements RepositoryInterface
     /**
      * Builds rate key to speed up search.
      *
-     * @param string|null|RateInterface $currencyCode
-     * @param \DateTime|null $date
-     * @param string|null $rateType
-     * @param string|null $sourceName
+     * @param string $currencyCode
+     * @param \DateTime $date
+     * @param string $rateType
+     * @param string $sourceName
      * @return string
      */
-    protected function getRateKey($currencyCode = null, $date = null, $rateType = null, $sourceName = null)
+    protected function getRateKey($currencyCode, $date, $rateType, $sourceName)
     {
-        if ($currencyCode instanceof RateInterface) {
-            $date = $currencyCode->getDate();
-            $rateType = $currencyCode->getRateType();
-            $sourceName = $currencyCode->getSourceName();
-            $currencyCode = $currencyCode->getCurrencyCode();
-        }
-
         return str_replace(
             array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
             array($currencyCode, $date->format('Y-m-d'), $rateType, $sourceName),

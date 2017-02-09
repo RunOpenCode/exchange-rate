@@ -9,6 +9,7 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Configuration;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\ProcessorsRegistryInterface;
@@ -20,7 +21,7 @@ use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
 use RunOpenCode\ExchangeRate\Manager;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
-class ManagerTest extends \PHPUnit_Framework_TestCase
+class ManagerTest extends TestCase
 {
     /**
      * @test

@@ -9,12 +9,13 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Processor;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Model\Rate;
 use RunOpenCode\ExchangeRate\Processor\BaseCurrencyValidator;
 use RunOpenCode\ExchangeRate\Registry\RatesConfigurationRegistry;
 
-class BaseCurrencyValidatorTest extends \PHPUnit_Framework_TestCase
+class BaseCurrencyValidatorTest extends TestCase
 {
     /**
      * @var ProcessorInterface

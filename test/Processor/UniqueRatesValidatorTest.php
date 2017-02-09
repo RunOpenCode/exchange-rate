@@ -9,12 +9,13 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Processor;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Model\Rate;
 use RunOpenCode\ExchangeRate\Processor\UniqueRatesValidator;
 use RunOpenCode\ExchangeRate\Registry\RatesConfigurationRegistry;
 
-class UniqueRatesValidatorTest extends \PHPUnit_Framework_TestCase
+class UniqueRatesValidatorTest extends TestCase
 {
     /**
      * @var ProcessorInterface

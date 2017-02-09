@@ -9,10 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Registry;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Registry\ProcessorsRegistry;
 
-class ProcessorsRegistryTest extends \PHPUnit_Framework_TestCase
+class ProcessorsRegistryTest extends TestCase
 {
     /**
      * @test

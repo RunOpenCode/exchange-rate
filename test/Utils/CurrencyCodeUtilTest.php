@@ -9,9 +9,10 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Utils;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
-class CurrencyCodeUtilTest extends \PHPUnit_Framework_TestCase
+class CurrencyCodeUtilTest extends TestCase
 {
     /**
      * @test

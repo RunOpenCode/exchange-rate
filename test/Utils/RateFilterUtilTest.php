@@ -9,10 +9,11 @@
  */
 namespace RunOpenCode\ExchangeRate\Tests\Utils;
 
+use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Model\Rate;
 use RunOpenCode\ExchangeRate\Utils\RateFilterUtil;
 
-class RateFilterUtilTest extends \PHPUnit_Framework_TestCase
+class RateFilterUtilTest extends TestCase
 {
     /**
      * @test
