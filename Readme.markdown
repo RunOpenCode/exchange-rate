@@ -84,9 +84,9 @@ date. That means that if it is a Saturday or Sunday, and if rates are not availa
 used on given date. That means that if it is a Saturday or Sunday, and if rates are not available, 
 a rate from Friday before given date will be used.  
 
-System defines 'default' rate, considering that every Source will provide you with at least one rate type. Every
-implementation should declare one of available rate types as 'default'. Recommendation is to consider 'median' rate type
-as default.
+System defines 'median' rate, considering that every Source will provide you with at least one rate type, which is usually
+a median. Every implementation should declare one of available rate types as default on. Recommendation is to consider
+'median' rate type as default.
 
 # Bootstrapping manager
 
@@ -113,9 +113,9 @@ In example bellow you can find example of manager initialization, which you can 
         
         // Create your configuration, register which rates you would like to fetch
         $configurationsRegistry = new RatesConfigurationRegistry(array(
-            new Configuration('EUR', 'default', 'my_source'),
-            new Configuration('CHF', 'default', 'my_source'),
-            new Configuration('USD', 'default', 'my_other_source'),
+            new Configuration('EUR', 'median', 'my_source'),
+            new Configuration('CHF', 'median', 'my_source'),
+            new Configuration('USD', 'median', 'my_other_source'),
         ));
         
         // Register your processors

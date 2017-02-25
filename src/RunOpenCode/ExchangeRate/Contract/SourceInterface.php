@@ -46,5 +46,5 @@ interface SourceInterface extends LoggerAwareInterface
      * @throws SourceNotAvailableException
      * @throws ConfigurationException
      */
-    public function fetch($currencyCode, $rateType = RateType::DEFAULT, \DateTime $date = null);
+    public function fetch($currencyCode, $rateType = RateType::MEDIAN, \DateTime $date = null);
 }

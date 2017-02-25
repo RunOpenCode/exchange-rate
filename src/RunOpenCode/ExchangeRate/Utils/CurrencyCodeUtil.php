@@ -20,7 +20,10 @@ use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
  */
 final class CurrencyCodeUtil
 {
-    private function __construct() { }
+    private function __construct()
+    {
+        // noop
+    }
 
     /**
      * List of currency codes.
@@ -161,7 +164,7 @@ final class CurrencyCodeUtil
         'PTE' => 'Portugal Escudo',
         'ESP' => 'Spain Peseta',
         'XDR' => 'IMF Special Drawing Rights',
-        'SKK' => 'Slovak Koruna'
+        'SKK' => 'Slovak Koruna',
     );
 
     /**

@@ -18,7 +18,7 @@ abstract class AbstractRepositoryTest extends TestCase
         $this->assertSame(0, $repository->count(), 'Repository should be empty.');
 
         $repository->save(array(
-            new Rate('some_source', 10, 'EUR', 'default', new \DateTime(), 'RSD', new \DateTime(), new \DateTime())
+            new Rate('some_source', 10, 'EUR', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime())
         ));
 
         $this->assertTrue($repository->has('some_source', 'EUR'));
@@ -33,7 +33,7 @@ abstract class AbstractRepositoryTest extends TestCase
         $repository = $this->getRepository();
 
         $repository->save(array(
-            new Rate('some_source', 10, 'EUR', 'default', new \DateTime(), 'RSD', new \DateTime(), new \DateTime())
+            new Rate('some_source', 10, 'EUR', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime())
         ));
 
         $this->assertTrue($repository->has('some_source', 'EUR'));
@@ -52,10 +52,10 @@ abstract class AbstractRepositoryTest extends TestCase
         $repository = $this->getRepository();
 
         $repository->save(array(
-            new Rate('some_source', 10, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 11, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 12, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 13, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
+            new Rate('some_source', 10, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 11, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 12, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 13, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
         ));
 
         $rate = $repository->latest('some_source', 'EUR');
@@ -71,10 +71,10 @@ abstract class AbstractRepositoryTest extends TestCase
         $repository = $this->getRepository();
 
         $repository->save(array(
-            new Rate('some_source', 10, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 11, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 12, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 13, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
+            new Rate('some_source', 10, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 11, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 12, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 13, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
         ));
 
         $rates = $repository->all(array(
@@ -96,10 +96,10 @@ abstract class AbstractRepositoryTest extends TestCase
         $repository = $this->getRepository();
 
         $repository->save(array(
-            new Rate('some_source', 10, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 11, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 12, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_other_source', 13, 'EUR', 'default', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
+            new Rate('some_source', 10, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 11, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 12, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_other_source', 13, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
         ));
 
         $rates = $repository->all(array(

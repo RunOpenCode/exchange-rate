@@ -41,6 +41,14 @@ class Configuration
      */
     private $extraConfiguration;
 
+    /**
+     * Configuration constructor.
+     *
+     * @param $currencyCode
+     * @param $rateType
+     * @param $sourceName
+     * @param array $extraConfiguration
+     */
     public function __construct($currencyCode, $rateType, $sourceName, array $extraConfiguration = array())
     {
         $this->currencyCode = CurrencyCodeUtil::clean($currencyCode);

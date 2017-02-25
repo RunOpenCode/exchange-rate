@@ -44,7 +44,7 @@ interface RepositoryInterface extends \Countable
      *
      * @return bool
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT);
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::MEDIAN);
 
     /**
      * Get rate for currency on given date.
@@ -56,7 +56,7 @@ interface RepositoryInterface extends \Countable
      *
      * @return RateInterface
      */
-    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT);
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::MEDIAN);
 
     /**
      * Get latest available rate.
@@ -67,7 +67,7 @@ interface RepositoryInterface extends \Countable
      *
      * @return RateInterface
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT);
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN);
 
     /**
      * Get all rates. If filtering criteria is provided, return matches only.

@@ -26,6 +26,11 @@ final class ProcessorsRegistry implements ProcessorsRegistryInterface
      */
     private $processors;
 
+    /**
+     * ProcessorsRegistry constructor.
+     *
+     * @param ProcessorInterface[] $processors
+     */
     public function __construct(array $processors = array())
     {
         $this->processors = array();

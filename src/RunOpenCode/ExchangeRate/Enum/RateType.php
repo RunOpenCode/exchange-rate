@@ -16,7 +16,7 @@ namespace RunOpenCode\ExchangeRate\Enum;
  */
 final class RateType
 {
-    const DEFAULT = 'default';
+    const MEDIAN = 'median';
 
     private function __construct()
     {

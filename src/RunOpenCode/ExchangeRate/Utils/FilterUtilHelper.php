@@ -31,8 +31,8 @@ trait FilterUtilHelper
     {
         if (!empty($criteria[$key])) {
             return array($criteria[$key]);
-        } elseif (!empty($criteria[$key . 's'])) {
-            return $criteria[$key . 's'];
+        } elseif (!empty($criteria[$key.'s'])) {
+            return $criteria[$key.'s'];
         }
 
         return array();

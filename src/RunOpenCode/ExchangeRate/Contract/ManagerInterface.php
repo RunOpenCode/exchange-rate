@@ -38,7 +38,7 @@ interface ManagerInterface
      * @throws UnknownRateTypeException
      * @throws SourceNotAvailableException
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT);
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::MEDIAN);
 
     /**
      * Get rate for currency on given date.
@@ -55,7 +55,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function get($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::DEFAULT);
+    public function get($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::MEDIAN);
 
     /**
      * Get latest available rate.
@@ -71,7 +71,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT);
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN);
 
     /**
      * Get rate which ought to be used today.
@@ -92,7 +92,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function today($sourceName, $currencyCode, $rateType = RateType::DEFAULT);
+    public function today($sourceName, $currencyCode, $rateType = RateType::MEDIAN);
 
     /**
      * Get rate which ought to be used on given day.
@@ -114,7 +114,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::DEFAULT);
+    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::MEDIAN);
 
     /**
      * Fetch rates from sources.

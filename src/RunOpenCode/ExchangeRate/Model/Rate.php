@@ -61,6 +61,20 @@ class Rate implements RateInterface
      */
     protected $modifiedAt;
 
+    /**
+     * Rate constructor.
+     *
+     * @param string $sourceName
+     * @param float $value
+     * @param string $currencyCode
+     * @param string $rateType
+     * @param \DateTime|int $date
+     * @param string $baseCurrencyCode
+     * @param null|\DateTime|int $createdAt
+     * @param null|\DateTime|int $modifiedAt
+     *
+     * @throws \RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException
+     */
     public function __construct($sourceName, $value, $currencyCode, $rateType, $date, $baseCurrencyCode, $createdAt = null, $modifiedAt = null)
     {
         $this->sourceName = $sourceName;
@@ -69,9 +83,10 @@ class Rate implements RateInterface
         $this->rateType = $rateType;
         $this->baseCurrencyCode = CurrencyCodeUtil::clean($baseCurrencyCode);
 
-        $processDate = function($arg) {
-            $arg = (is_null($arg)) ? new \DateTime('now') : $arg;
-            return (is_numeric($arg)) ? date_timestamp_set(new \DateTime(), $arg) : clone $arg;
+        $processDate = function ($arg) {
+            $arg = (null === $arg) ? new \DateTime('now') : $arg;
+
+            return is_numeric($arg) ? date_timestamp_set(new \DateTime(), $arg) : clone $arg;
         };
 
         $this->date = $processDate($date);

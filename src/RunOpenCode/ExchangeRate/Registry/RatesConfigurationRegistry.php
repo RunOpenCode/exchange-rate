@@ -27,6 +27,11 @@ final class RatesConfigurationRegistry implements RatesConfigurationRegistryInte
      */
     private $configurations;
 
+    /**
+     * RatesConfigurationRegistry constructor.
+     *
+     * @param Configuration[] $configurations
+     */
     public function __construct(array $configurations = array())
     {
         $this->configurations = array();

@@ -29,6 +29,11 @@ final class SourcesRegistry implements SourcesRegistryInterface
      */
     private $sources;
 
+    /**
+     * SourcesRegistry constructor.
+     *
+     * @param SourceInterface[] $sources
+     */
     public function __construct(array $sources = array())
     {
         $this->sources = array();

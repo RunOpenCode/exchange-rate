@@ -50,6 +50,11 @@ class FileRepository implements RepositoryInterface
      */
     protected $latest;
 
+    /**
+     * FileRepository constructor.
+     *
+     * @param string $pathToFile
+     */
     public function __construct($pathToFile)
     {
         $this->pathToFile = $pathToFile;
@@ -69,7 +74,7 @@ class FileRepository implements RepositoryInterface
             $this->rates[$this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName())] = $rate;
         }
 
-        usort($this->rates, function(RateInterface $rate1, RateInterface $rate2) {
+        usort($this->rates, function (RateInterface $rate1, RateInterface $rate2) {
             return ($rate1->getDate() > $rate2->getDate()) ? -1 : 1;
         });
 
@@ -79,7 +84,7 @@ class FileRepository implements RepositoryInterface
          * @var RateInterface $rate
          */
         foreach ($this->rates as $rate) {
-            $data .= $this->toJson($rate) . "\n";
+            $data .= $this->toJson($rate)."\n";
         }
 
         file_put_contents($this->pathToFile, $data, LOCK_EX);
@@ -105,7 +110,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::MEDIAN)
     {
         if ($date === null) {
             $date = new \DateTime('now');
@@ -117,7 +122,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::MEDIAN)
     {
         if ($date === null) {
             $date = new \DateTime('now');
@@ -133,7 +138,7 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT)
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
     {
         /**
          * @var RateInterface $rate
@@ -161,21 +166,21 @@ class FileRepository implements RepositoryInterface
     {
         if (count($criteria) == 0) {
             return $this->rates;
-        } else {
-            $result = array();
-
-            /**
-             * @var RateInterface $rate
-             */
-            foreach ($this->rates as $rate) {
-
-                if (RateFilterUtil::matches($rate, $criteria)) {
-                    $result[] = $rate;
-                }
-            }
-
-            return $this->paginate($result, $criteria);
         }
+
+        $result = array();
+
+        /**
+         * @var RateInterface $rate
+         */
+        foreach ($this->rates as $rate) {
+
+            if (RateFilterUtil::matches($rate, $criteria)) {
+                $result[] = $rate;
+            }
+        }
+
+        return $this->paginate($result, $criteria);
     }
 
     /**
@@ -196,28 +201,26 @@ class FileRepository implements RepositoryInterface
         $this->rates = array();
         $this->latest = array();
 
-        $handle = fopen($this->pathToFile, 'r');
+        $handle = fopen($this->pathToFile, 'rb');
 
-        if ($handle) {
-
-            while (($line = fgets($handle)) !== false) {
-
-                $rate = $this->fromJson($line);
-
-                $this->rates[$this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName())] = $rate;
-
-                $latestKey = sprintf('%s_%s_%s', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName());
-
-                if (!isset($this->latest[$latestKey]) || ($this->latest[$latestKey]->getDate() < $rate->getDate())) {
-                    $this->latest[$latestKey] = $rate;
-                }
-            }
-
-            fclose($handle);
-
-        } else {
+        if (!$handle) {
             throw new RuntimeException(sprintf('Error opening file on path "%s".', $this->pathToFile));
         }
+
+        while (($line = fgets($handle)) !== false) {
+
+            $rate = $this->fromJson($line);
+
+            $this->rates[$this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName())] = $rate;
+
+            $latestKey = sprintf('%s_%s_%s', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName());
+
+            if (!isset($this->latest[$latestKey]) || ($this->latest[$latestKey]->getDate() < $rate->getDate())) {
+                $this->latest[$latestKey] = $rate;
+            }
+        }
+
+        fclose($handle);
 
         return $this->rates;
     }
@@ -279,7 +282,7 @@ class FileRepository implements RepositoryInterface
             'date' => $rate->getDate()->format(\DateTime::ATOM),
             'baseCurrencyCode' => $rate->getBaseCurrencyCode(),
             'createdAt' => $rate->getCreatedAt()->format(\DateTime::ATOM),
-            'modifiedAt' => $rate->getModifiedAt()->format(\DateTime::ATOM)
+            'modifiedAt' => $rate->getModifiedAt()->format(\DateTime::ATOM),
         ));
     }
 

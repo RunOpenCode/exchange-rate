@@ -57,6 +57,17 @@ class Manager implements ManagerInterface
      */
     protected $configurations;
 
+    /**
+     * Manager constructor.
+     *
+     * @param string $baseCurrency
+     * @param RepositoryInterface $repository
+     * @param SourcesRegistryInterface $sources
+     * @param ProcessorsRegistryInterface $processors
+     * @param RatesConfigurationRegistryInterface $configurations
+     *
+     * @throws \RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException
+     */
     public function __construct($baseCurrency, RepositoryInterface $repository, SourcesRegistryInterface $sources, ProcessorsRegistryInterface $processors, RatesConfigurationRegistryInterface $configurations)
     {
         $this->baseCurrency = CurrencyCodeUtil::clean($baseCurrency);
@@ -68,16 +79,20 @@ class Manager implements ManagerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException
      */
-    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
+    public function has($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::MEDIAN)
     {
         return $this->repository->has($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException
      */
-    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::DEFAULT)
+    public function get($sourceName, $currencyCode, \DateTime $date = null, $rateType = RateType::MEDIAN)
     {
         return $this->repository->get($sourceName, CurrencyCodeUtil::clean($currencyCode), $date, $rateType);
     }
@@ -85,15 +100,17 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::DEFAULT)
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
     {
         return $this->repository->latest($sourceName, CurrencyCodeUtil::clean($currencyCode), $rateType);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException
      */
-    public function today($sourceName, $currencyCode, $rateType = RateType::DEFAULT)
+    public function today($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
     {
         $currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $today = new \DateTime('now');
@@ -102,7 +119,7 @@ class Manager implements ManagerInterface
             return $this->get($sourceName, $currencyCode, $today, $rateType);
         }
 
-        if ((int)$today->format('N') >= 6 && $this->has($sourceName, $currencyCode, $lastFriday = new \DateTime('last Friday'), $rateType)) {
+        if ((int) $today->format('N') >= 6 && $this->has($sourceName, $currencyCode, $lastFriday = new \DateTime('last Friday'), $rateType)) {
             return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
         }
 
@@ -113,8 +130,10 @@ class Manager implements ManagerInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException
      */
-    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::DEFAULT)
+    public function historical($sourceName, $currencyCode, \DateTime $date, $rateType = RateType::MEDIAN)
     {
         $currencyCode = CurrencyCodeUtil::clean($currencyCode);
 
@@ -122,9 +141,9 @@ class Manager implements ManagerInterface
             return $this->get($sourceName, $currencyCode, $date, $rateType);
         }
 
-        if ((int)$date->format('N') === 6 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P1D')), $rateType)) {
+        if ((int) $date->format('N') === 6 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P1D')), $rateType)) {
             return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
-        } elseif ((int)$date->format('N') === 7 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P2D')), $rateType)) {
+        } elseif ((int) $date->format('N') === 7 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P2D')), $rateType)) {
             return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
         }
 
@@ -140,7 +159,7 @@ class Manager implements ManagerInterface
     {
         $rates = array();
 
-        $filteredSourceNames = ($sourceName === null) ? array_map(function(SourceInterface $source) {
+        $filteredSourceNames = ($sourceName === null) ? array_map(function (SourceInterface $source) {
             return $source->getName();
         }, $this->sources->all()) : (array) $sourceName;
 
@@ -149,7 +168,7 @@ class Manager implements ManagerInterface
             $source = $this->sources->get($name);
 
             $filteredConfigurations = $this->configurations->all(array(
-                'sourceName' => $name
+                'sourceName' => $name,
             ));
 
             /**
@@ -170,5 +189,15 @@ class Manager implements ManagerInterface
         $this->repository->save($rates);
 
         return $rates;
+    }
+
+    /**
+     * Get base currency
+     *
+     * @return string
+     */
+    public function getBaseCurrency()
+    {
+        return $this->baseCurrency;
     }
 }
