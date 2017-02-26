@@ -58,7 +58,7 @@ class FileRepository implements RepositoryInterface
     public function __construct($pathToFile)
     {
         $this->pathToFile = $pathToFile;
-        $this->initStorage();
+        $this->initialize();
         $this->load();
     }
 
@@ -246,7 +246,7 @@ class FileRepository implements RepositoryInterface
     /**
      * Initializes file storage.
      */
-    protected function initStorage()
+    protected function initialize()
     {
         /** @noinspection MkdirRaceConditionInspection */
         if (!file_exists(dirname($this->pathToFile)) && !mkdir(dirname($this->pathToFile), 0777, true)) {
@@ -298,7 +298,7 @@ class FileRepository implements RepositoryInterface
 
         return new Rate(
             $data['sourceName'],
-            $data['value'],
+            (float) $data['value'],
             $data['currencyCode'],
             $data['rateType'],
             \DateTime::createFromFormat(\DateTime::ATOM, $data['date']),

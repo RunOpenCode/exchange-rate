@@ -1,5 +1,12 @@
 <?php
-
+/*
+ * This file is part of the Exchange Rate package, an RunOpenCode project.
+ *
+ * (c) 2016 RunOpenCode
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 namespace RunOpenCode\ExchangeRate\Tests\Repository;
 
 use PHPUnit\Framework\TestCase;
@@ -60,7 +67,7 @@ abstract class AbstractRepositoryTest extends TestCase
 
         $rate = $repository->latest('some_source', 'EUR');
 
-        $this->assertSame(12, $rate->getValue());
+        $this->assertSame(12.0, $rate->getValue());
     }
 
     /**
@@ -71,21 +78,21 @@ abstract class AbstractRepositoryTest extends TestCase
         $repository = $this->getRepository();
 
         $repository->save(array(
-            new Rate('some_source', 10, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 10, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-08'), 'RSD', new \DateTime(), new \DateTime()),
             new Rate('some_source', 11, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 12, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 12, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-07'), 'RSD', new \DateTime(), new \DateTime()),
             new Rate('some_source', 13, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
         ));
 
         $rates = $repository->all(array(
             'offset' => 2,
-            'limit' => 3
+            'limit' => 2
         ));
 
         $this->assertSame(2, count($rates));
 
-        $this->assertSame(11, $rates[0]->getValue());
-        $this->assertSame(13, $rates[1]->getValue());
+        $this->assertSame(12.0, $rates[0]->getValue());
+        $this->assertSame(13.0, $rates[1]->getValue());
     }
 
     /**
@@ -108,7 +115,7 @@ abstract class AbstractRepositoryTest extends TestCase
 
         $this->assertSame(1, count($rates));
 
-        $this->assertSame(13, $rates[0]->getValue());
+        $this->assertSame(13.0, $rates[0]->getValue());
     }
 
     /**

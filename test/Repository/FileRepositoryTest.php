@@ -13,6 +13,9 @@ use RunOpenCode\ExchangeRate\Repository\FileRepository;
 
 class FileRepositoryTest extends AbstractRepositoryTest
 {
+    /**
+     * {@inheritdoc}
+     */
     protected function getRepository()
     {
         return new FileRepository(tempnam(sys_get_temp_dir(), 'roc_exchange_rate_file_repository'));
