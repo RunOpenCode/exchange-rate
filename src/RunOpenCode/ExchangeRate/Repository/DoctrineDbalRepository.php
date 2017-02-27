@@ -50,17 +50,14 @@ class DoctrineDbalRepository implements RepositoryInterface
      * DoctrineDbalRepository constructor.
      *
      * @param Connection $connection Dbal connection.
-     * @param string $tableName Table name in which rates will be stored.
-     * @param bool $initialize Should repository initialize table.
+     * @param string|null $tableName Table name in which rates will be stored, or NULL for 'runopencode_exchange_rate'.
      */
-    public function __construct(Connection $connection, $tableName = 'runopencode_exchange_rate', $initialize = false)
+    public function __construct(Connection $connection, $tableName = null)
     {
         $this->connection = $connection;
-        $this->tableName = $tableName;
+        $this->tableName = ($tableName = trim($tableName)) ? $tableName : 'runopencode_exchange_rate';
 
-        if ($initialize) {
-            $this->initialize();
-        }
+        $this->initialize();
     }
 
     /**
@@ -309,7 +306,7 @@ class DoctrineDbalRepository implements RepositoryInterface
          * @var Statement $statement
          */
         $statement = $this->connection->query(sprintf('SELECT count(*) as cnt FROM %s;', $this->tableName), \PDO::FETCH_ASSOC);
-        return (int) $statement->fetchAll()['cnt'];
+        return (int) $statement->fetchAll()[0]['cnt'];
     }
 
     /**
@@ -335,6 +332,10 @@ class DoctrineDbalRepository implements RepositoryInterface
      */
     protected function initialize()
     {
+        if ($this->connection->getSchemaManager()->tablesExist([$this->tableName])) {
+            return;
+        }
+
         $schema = new Schema();
 
         $table = $schema->createTable($this->tableName);

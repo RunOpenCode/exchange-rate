@@ -30,6 +30,8 @@ abstract class AbstractRepositoryTest extends TestCase
 
         $this->assertTrue($repository->has('some_source', 'EUR'));
         $this->assertFalse($repository->has('some_source', 'CHF'));
+
+        $this->assertSame(1, $repository->count(), 'Repository should have one record.');
     }
 
     /**

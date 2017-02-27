@@ -34,6 +34,6 @@ class DoctrineDbalRepositoryTest extends AbstractRepositoryTest
             'driver' => 'pdo_sqlite',
         ], new Configuration());
 
-        return new DoctrineDbalRepository($this->connection, 'runopencode_exchange_rate', true);
+        return new DoctrineDbalRepository($this->connection);
     }
 }

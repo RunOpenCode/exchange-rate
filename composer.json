@@ -43,12 +43,13 @@
         "sebastian/phpcpd": "dev-master",
         "theseer/phpdox": "dev-master",
         "escapestudios/symfony2-coding-standard": "~2.0",
-        "doctrine/dbal": "~2.5"
+        "doctrine/dbal": "~2.5",
+        "symfony/console": "~3.0"
     },
     "suggest": {
         "runopencode/exchange-rate-bundle": "Exchange rate Symfony bundle.",
         "runopencode/exchange-rate-nbs": "Provides you with exchange rates from National Bank of Serbia.",
         "runopencode/exchange-rate-intesa-rs": "Provides you with exchange rates from Banca Intesa Serbia.",
-        "doctrine/dbal": "Store rates into relational database"
+        "doctrine/dbal": "Store rates into relational database."
     }
 }

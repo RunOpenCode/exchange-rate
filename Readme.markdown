@@ -49,7 +49,8 @@ provided with default implementation of this interface, of course.
 - **Repository**, implementation of `RunOpenCode\ExchangeRate\Contract\RepositoryInterface` is in charge for persisting
 Rates on local storage system. This library provides you with implementation of `RunOpenCode\ExchangeRate\Repository\FileRepository`
 which saves Rates into local plain text file. Considering that there is only 365 days per year, this is good enough storage system, 
-especially if you wrap him with some kind of caching mechanism.
+especially if you wrap him with some kind of caching mechanism. You can, of course, use `RunOpenCode\ExchangeRate\Repository\DoctrineDbalRepository`
+as well, if you would like to store rates in relational database (like MySql) via Doctrine Dbal library.
 - **Processor**, implementation of `RunOpenCode\ExchangeRate\Contract\ProcessorInterface` which process and modifies rates
 after they are fetched from sources. Library delivers several processor implementations, mainly in charge of validating 
 fetched rates. However, you can modify rates however you like prior to their persistence. Per example, your client could
