@@ -212,7 +212,7 @@ class DoctrineDbalRepository implements RepositoryInterface
         );
 
         if (0 === count($result)) {
-            throw new ExchangeRateException(sprintf('Could not fetch rate for rate currency code "%s" and rate type "%s" on date "%s".', $currencyCode, $rateType, $date->format('Y-m-d')));
+            throw new ExchangeRateException(sprintf('Could not fetch latest rate for rate currency code "%s" and rate type "%s".', $currencyCode, $rateType));
         }
 
         $rate = $this->buildRateFromTableRowData($result[0]);
