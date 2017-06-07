@@ -23,12 +23,15 @@ class ExchangeRateException extends Exception
      * @return string
      */
     public static function typeOf($arg) {
-        if (is_null($arg)) {
+
+        if (null === $arg) {
             return 'NULL';
-        } elseif (is_object($arg)) {
-            return get_class($arg);
-        } else {
-            return gettype($arg);
         }
+
+        if (is_object($arg)) {
+            return get_class($arg);
+        }
+
+        return gettype($arg);
     }
 }

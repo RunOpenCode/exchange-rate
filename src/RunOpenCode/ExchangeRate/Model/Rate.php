@@ -78,7 +78,7 @@ class Rate implements RateInterface
     public function __construct($sourceName, $value, $currencyCode, $rateType, $date, $baseCurrencyCode, $createdAt = null, $modifiedAt = null)
     {
         $this->sourceName = $sourceName;
-        $this->value = $value;
+        $this->value = is_numeric($value) ? (float) $value : $value;
         $this->currencyCode = CurrencyCodeUtil::clean($currencyCode);
         $this->rateType = $rateType;
         $this->baseCurrencyCode = CurrencyCodeUtil::clean($baseCurrencyCode);

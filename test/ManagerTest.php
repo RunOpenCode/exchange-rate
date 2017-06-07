@@ -181,7 +181,7 @@ class ManagerTest extends TestCase
         $invocations = $spy->getInvocations();
         $invocations = end($invocations);
 
-        $this->assertSame(3, $invocations->parameters[0][0]->getValue(), 'Fetch process should result with processed rate value.');
-        $this->assertSame(3, $fetchedRates[0]->getValue(), 'Fetched rate should have given value.');
+        $this->assertSame(3.0, $invocations->parameters[0][0]->getValue(), 'Fetch process should result with processed rate value.');
+        $this->assertSame(3.0, $fetchedRates[0]->getValue(), 'Fetched rate should have given value.');
     }
 }
