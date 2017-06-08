@@ -11,6 +11,11 @@ namespace RunOpenCode\ExchangeRate\Tests\Repository;
 
 use RunOpenCode\ExchangeRate\Repository\MemoryRepository;
 
+/**
+ * Class MemoryRepositoryTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Repository
+ */
 class MemoryRepositoryTest extends AbstractRepositoryTest
 {
     /**

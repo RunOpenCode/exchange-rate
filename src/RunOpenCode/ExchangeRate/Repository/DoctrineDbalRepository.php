@@ -85,26 +85,26 @@ class DoctrineDbalRepository implements RepositoryInterface
                         'modified_at' => date('Y-m-d H:i:s'),
                     ]);
 
-                } else {
-
-                    $this->connection->executeQuery(sprintf('INSERT INTO %s (source_name, rate_value, currency_code, rate_type, rate_date, base_currency_code, created_at, modified_at) VALUES (:source_name, :rate_value, :currency_code, :rate_type, :rate_date, :base_currency_code, :created_at, :modified_at);', $this->tableName), [
-                        'source_name' => $rate->getSourceName(),
-                        'rate_value' => (float) $rate->getValue(),
-                        'currency_code' => $rate->getCurrencyCode(),
-                        'rate_type' => $rate->getRateType(),
-                        'rate_date' => $rate->getDate()->format('Y-m-d'),
-                        'base_currency_code' => $rate->getBaseCurrencyCode(),
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'modified_at' => date('Y-m-d H:i:s'),
-                    ]);
+                    continue;
                 }
+
+                $this->connection->executeQuery(sprintf('INSERT INTO %s (source_name, rate_value, currency_code, rate_type, rate_date, base_currency_code, created_at, modified_at) VALUES (:source_name, :rate_value, :currency_code, :rate_type, :rate_date, :base_currency_code, :created_at, :modified_at);', $this->tableName), [
+                    'source_name' => $rate->getSourceName(),
+                    'rate_value' => (float) $rate->getValue(),
+                    'currency_code' => $rate->getCurrencyCode(),
+                    'rate_type' => $rate->getRateType(),
+                    'rate_date' => $rate->getDate()->format('Y-m-d'),
+                    'base_currency_code' => $rate->getBaseCurrencyCode(),
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'modified_at' => date('Y-m-d H:i:s'),
+                ]);
             }
 
             $this->connection->commit();
-
+            $this->identityMap = [];
         } catch (\Exception $e) {
             $this->connection->rollBack();
-            throw $e;
+            throw new ExchangeRateException('Unable to save rates.', 0, $e);
         }
     }
 
@@ -138,7 +138,7 @@ class DoctrineDbalRepository implements RepositoryInterface
             $this->connection->commit();
         } catch (\Exception $e) {
             $this->connection->rollBack();
-            throw $e;
+            throw new ExchangeRateException('Unable to delete rates.', 0, $e);
         }
     }
 
@@ -333,7 +333,7 @@ class DoctrineDbalRepository implements RepositoryInterface
     protected function initialize()
     {
         if ($this->connection->getSchemaManager()->tablesExist([$this->tableName])) {
-            return;
+            return; // @codeCoverageIgnore
         }
 
         $schema = new Schema();

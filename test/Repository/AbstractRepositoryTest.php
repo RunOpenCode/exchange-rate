@@ -17,6 +17,53 @@ abstract class AbstractRepositoryTest extends TestCase
 {
     /**
      * @test
+     *
+     * @expectedException \RunOpenCode\ExchangeRate\Exception\ExchangeRateException
+     */
+    public function getThrowsExceptionWhenDoesNotExists()
+    {
+        $repository = $this->getRepository();
+
+        $repository->save(array(
+            new Rate('some_source', 10, 'EUR', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime())
+        ));
+
+
+        $repository->get('some_source', 'CHF');
+    }
+
+    /**
+     * @test
+     *
+     * @expectedException \RunOpenCode\ExchangeRate\Exception\ExchangeRateException
+     */
+    public function latestThrowsExceptionWhenEmpty()
+    {
+        $repository = $this->getRepository();
+        $repository->latest('some_source', 'EUR');
+    }
+
+    /**
+     * @test
+     */
+    public function all()
+    {
+        $repository = $this->getRepository();
+
+
+        $repository->save(array(
+            new Rate('some_source', 10, 'EUR', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 10, 'CHF', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 10, 'BAM', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime()),
+        ));
+
+        $rates = $repository->all();
+
+        $this->assertEquals(3, count($rates));
+    }
+
+    /**
+     * @test
      */
     public function save()
     {
@@ -30,8 +77,18 @@ abstract class AbstractRepositoryTest extends TestCase
 
         $this->assertTrue($repository->has('some_source', 'EUR'));
         $this->assertFalse($repository->has('some_source', 'CHF'));
-
+        $this->assertEquals(10, $repository->get('some_source', 'EUR')->getValue());
         $this->assertSame(1, $repository->count(), 'Repository should have one record.');
+
+        $repository->save(array(
+            new Rate('some_source', 20, 'EUR', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 15, 'CHF', 'median', new \DateTime(), 'RSD', new \DateTime(), new \DateTime()),
+        ));
+
+        $this->assertTrue($repository->has('some_source', 'EUR'));
+        $this->assertTrue($repository->has('some_source', 'CHF'));
+        $this->assertSame(2, $repository->count(), 'Repository should have two records.');
+        $this->assertEquals(20, $repository->get('some_source', 'EUR')->getValue());
     }
 
     /**

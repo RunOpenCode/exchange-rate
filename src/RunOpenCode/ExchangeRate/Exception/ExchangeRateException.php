@@ -9,12 +9,14 @@
  */
 namespace RunOpenCode\ExchangeRate\Exception;
 
+use RunOpenCode\ExchangeRate\Contract\ExceptionInterface;
+
 /**
  * Class ExchangeRateException
  *
  * @package RunOpenCode\ExchangeRate\Exception
  */
-class ExchangeRateException extends Exception
+class ExchangeRateException extends \Exception implements ExceptionInterface
 {
     /**
      * Get type of argument for exception messages.

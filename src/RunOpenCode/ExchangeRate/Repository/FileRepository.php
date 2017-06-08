@@ -204,7 +204,7 @@ class FileRepository implements RepositoryInterface
         $handle = fopen($this->pathToFile, 'rb');
 
         if (!$handle) {
-            throw new RuntimeException(sprintf('Error opening file on path "%s".', $this->pathToFile));
+            throw new RuntimeException(sprintf('Error opening file on path "%s".', $this->pathToFile)); // @codeCoverageIgnore
         }
 
         while (($line = fgets($handle)) !== false) {
@@ -245,6 +245,8 @@ class FileRepository implements RepositoryInterface
 
     /**
      * Initializes file storage.
+     *
+     * @codeCoverageIgnore
      */
     protected function initialize()
     {

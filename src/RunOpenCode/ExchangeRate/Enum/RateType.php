@@ -13,6 +13,8 @@ namespace RunOpenCode\ExchangeRate\Enum;
  * Class RateType
  *
  * @package RunOpenCode\ExchangeRate\Enum
+ *
+ * @codeCoverageIgnore
  */
 final class RateType
 {
