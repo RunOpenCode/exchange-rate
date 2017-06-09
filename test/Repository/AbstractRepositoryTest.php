@@ -162,8 +162,8 @@ abstract class AbstractRepositoryTest extends TestCase
         $repository = $this->getRepository();
 
         $repository->save(array(
-            new Rate('some_source', 10, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
-            new Rate('some_source', 11, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+            new Rate('some_source', 11, 'CHF', 'buying', \DateTime::createFromFormat('Y-m-d', '2015-10-09'), 'RSD', new \DateTime(), new \DateTime()),
             new Rate('some_source', 12, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-11'), 'RSD', new \DateTime(), new \DateTime()),
             new Rate('some_other_source', 13, 'EUR', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-06'), 'RSD', new \DateTime(), new \DateTime())
         ));
@@ -173,7 +173,35 @@ abstract class AbstractRepositoryTest extends TestCase
         ));
 
         $this->assertSame(1, count($rates));
+        $this->assertSame(13.0, $rates[0]->getValue());
 
+        $rates = $repository->all(array(
+            'currencyCode' => 'CHF'
+        ));
+
+        $this->assertSame(1, count($rates));
+        $this->assertSame(11.0, $rates[0]->getValue());
+
+        $rates = $repository->all(array(
+            'rateType' => 'buying'
+        ));
+
+        $this->assertSame(1, count($rates));
+        $this->assertSame(11.0, $rates[0]->getValue());
+
+        $rates = $repository->all(array(
+            'dateFrom' => '2015-10-06',
+            'dateTo' => '2015-10-09',
+        ));
+
+        $this->assertSame(2, count($rates));
+        $this->assertSame(11.0, $rates[0]->getValue());
+
+        $rates = $repository->all(array(
+            'onDate' => '2015-10-06'
+        ));
+
+        $this->assertSame(1, count($rates));
         $this->assertSame(13.0, $rates[0]->getValue());
     }
 

@@ -9,6 +9,7 @@
  */
 namespace RunOpenCode\ExchangeRate\Utils;
 
+use RunOpenCode\ExchangeRate\Exception\InvalidArgumentException;
 use RunOpenCode\ExchangeRate\Exception\RuntimeException;
 
 /**
@@ -31,7 +32,9 @@ trait FilterUtilHelper
     {
         if (!empty($criteria[$key])) {
             return array($criteria[$key]);
-        } elseif (!empty($criteria[$key.'s'])) {
+        }
+
+        if (!empty($criteria[$key.'s'])) {
             return $criteria[$key.'s'];
         }
 
@@ -47,7 +50,17 @@ trait FilterUtilHelper
      */
     private static function extractDateCriteria($key, array $criteria)
     {
-        return (!empty($criteria[$key])) ? $criteria[$key] : null;
+        $date = (!empty($criteria[$key])) ? $criteria[$key] : null;
+
+        if (is_string($date)) {
+            $date = \DateTime::createFromFormat('Y-m-d', $date);
+        }
+
+        if (false === $date) {
+            throw new InvalidArgumentException(sprintf('Invalid date/time format provided "%s", expected "%s", or instance of \DateTime class.', $criteria[$key], 'Y-m-d'));
+        }
+
+        return $date;
     }
 
     /**

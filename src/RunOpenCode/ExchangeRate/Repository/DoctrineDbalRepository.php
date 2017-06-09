@@ -261,19 +261,19 @@ class DoctrineDbalRepository implements RepositoryInterface
         if (isset($criteria['dateFrom'])) {
             $queryBuilder
                 ->andWhere('R.rate_date >= :date_from')
-                ->setParameter('date_from', $criteria['dateFrom']->format('Y-m-d'));
+                ->setParameter('date_from', self::extractDateCriteria('dateFrom', $criteria)->format('Y-m-d'));
         }
 
         if (isset($criteria['dateTo'])) {
             $queryBuilder
                 ->andWhere('R.rate_date <= :date_to')
-                ->setParameter('date_to', $criteria['dateTo']->format('Y-m-d'));
+                ->setParameter('date_to', self::extractDateCriteria('dateTo', $criteria)->format('Y-m-d'));
         }
 
         if (isset($criteria['onDate'])) {
             $queryBuilder
                 ->andWhere('R.rate_date = :on_date')
-                ->setParameter('on_date', $criteria['onDate']->format('Y-m-d'));
+                ->setParameter('on_date', self::extractDateCriteria('onDate', $criteria)->format('Y-m-d'));
         }
 
         if (isset($criteria['limit'])) {
@@ -288,13 +288,17 @@ class DoctrineDbalRepository implements RepositoryInterface
          * @var Statement $statement
          */
         $statement = $queryBuilder->execute();
+
+        $result = [];
+
         while (($row = $statement->fetch()) !== false) {
             $rate = $this->buildRateFromTableRowData($row);
             $key = $this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName());
             $this->identityMap[$key] = $rate;
+            $result[] = $rate;
         }
 
-        return array_values($this->identityMap);
+        return $result;
     }
 
     /**

@@ -89,7 +89,6 @@ class DoctrineDbalRepositoryTest extends AbstractRepositoryTest
         ));
     }
 
-
     /**
      * {@inheritdoc}
      */

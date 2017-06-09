@@ -20,10 +20,7 @@ use RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException;
  */
 final class CurrencyCodeUtil
 {
-    private function __construct()
-    {
-        // noop
-    }
+    private function __construct() { /* noop */ }
 
     /**
      * List of currency codes.
