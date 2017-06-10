@@ -15,6 +15,11 @@ use RunOpenCode\ExchangeRate\Model\Rate;
 use RunOpenCode\ExchangeRate\Processor\BaseCurrencyValidator;
 use RunOpenCode\ExchangeRate\Registry\RatesConfigurationRegistry;
 
+/**
+ * Class BaseCurrencyValidatorTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Processor
+ */
 class BaseCurrencyValidatorTest extends TestCase
 {
     /**

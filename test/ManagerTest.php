@@ -20,90 +20,73 @@ use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
 use RunOpenCode\ExchangeRate\Manager;
 use RunOpenCode\ExchangeRate\Model\Rate;
+use RunOpenCode\ExchangeRate\Registry\ProcessorsRegistry;
+use RunOpenCode\ExchangeRate\Registry\RatesConfigurationRegistry;
+use RunOpenCode\ExchangeRate\Registry\SourcesRegistry;
+use RunOpenCode\ExchangeRate\Repository\MemoryRepository;
 
+/**
+ * Class ManagerTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests
+ */
 class ManagerTest extends TestCase
 {
     /**
      * @test
      */
-    public function repositoryProxy()
+    public function itGetsBaseCurrency()
     {
-        $repository = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $repository->method('has')->willReturn(true);
-        $repository->method('get')->willReturn($this->getMockBuilder(RateInterface::class)->getMock());
-        $repository->method('latest')->willReturn($this->getMockBuilder(RateInterface::class)->getMock());
-
         $manager = new Manager(
             'RSD',
-            $repository,
-            $this->getMockBuilder(SourcesRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(ProcessorsRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(RatesConfigurationRegistryInterface::class)->getMock()
+            new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
         );
 
-        $this->assertTrue($manager->has('test_source', 'EUR'));
-        $this->assertInstanceOf(RateInterface::class, $manager->get('test_source', 'EUR'));
-        $this->assertInstanceOf(RateInterface::class, $manager->latest('test_source', 'EUR'));
+        $this->assertEquals('RSD', $manager->getBaseCurrency());
     }
 
     /**
      * @test
      */
-    public function today()
+    public function has()
     {
-        $expectedMock = $this->getMockBuilder(RateInterface::class)->getMock();
-        $repository = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $repository->method('has')->willReturnOnConsecutiveCalls((int)date('N') < 6, true);
-        $repository->expects($spy = $this->any())->method('get')->willReturn($expectedMock);
-
         $manager = new Manager(
             'RSD',
-            $repository,
-            $this->getMockBuilder(SourcesRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(ProcessorsRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(RatesConfigurationRegistryInterface::class)->getMock()
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
         );
 
-        $this->assertSame($expectedMock, $manager->today('test_source', 'EUR'));
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
 
-        $invocations = $spy->getInvocations();
-        $invocations = end($invocations);
-
-        $this->assertSame('test_source', $invocations->parameters[0]);
-        $this->assertSame('EUR', $invocations->parameters[1]);
-
-        $today = new \DateTime(((int)date('N') < 6 ? 'now' : 'last Friday'));
-        $this->assertSame($today->format('Y-m-d'), $invocations->parameters[2]->format('Y-m-d'));
+        $this->assertTrue($manager->has('some_source', 'BAM', new \DateTime('2015-10-10')));
+        $this->assertFalse($manager->has('some_other_source', 'BAM', new \DateTime('2015-10-10')));
     }
 
     /**
      * @test
      */
-    public function historical()
+    public function get()
     {
-        $expectedMock = $this->getMockBuilder(RateInterface::class)->getMock();
-        $repository = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $repository->method('has')->willReturnOnConsecutiveCalls((int)date('N') < 6, true);
-        $repository->expects($spy = $this->any())->method('get')->willReturn($expectedMock);
-
         $manager = new Manager(
             'RSD',
-            $repository,
-            $this->getMockBuilder(SourcesRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(ProcessorsRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(RatesConfigurationRegistryInterface::class)->getMock()
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
         );
 
-        $this->assertSame($expectedMock, $manager->historical('test_source', 'EUR', new \DateTime('now')));
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
 
-        $invocations = $spy->getInvocations();
-        $invocations = end($invocations);
-
-        $this->assertSame('test_source', $invocations->parameters[0]);
-        $this->assertSame('EUR', $invocations->parameters[1]);
-
-        $today = new \DateTime(((int)date('N') < 6 ? 'now' : 'last Friday'));
-        $this->assertSame($today->format('Y-m-d'), $invocations->parameters[2]->format('Y-m-d'));
+        $this->assertInstanceOf(RateInterface::class, $manager->get('some_source', 'BAM', new \DateTime('2015-10-10')));
     }
 
     /**
@@ -111,21 +94,132 @@ class ManagerTest extends TestCase
      *
      * @expectedException \RunOpenCode\ExchangeRate\Exception\ExchangeRateException
      */
-    public function noRateForToday()
+    public function itThrowsExceptionWhenGettinNonExisting()
     {
-        $repository = $this->getMockBuilder(RepositoryInterface::class)->getMock();
-        $repository->method('has')->willReturn(false);
-        $repository->method('get')->willThrowException(new \Exception());
-
         $manager = new Manager(
             'RSD',
-            $repository,
-            $this->getMockBuilder(SourcesRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(ProcessorsRegistryInterface::class)->getMock(),
-            $this->getMockBuilder(RatesConfigurationRegistryInterface::class)->getMock()
+            new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
         );
 
-        $manager->today('test_source', 'EUR');
+        $manager->get('some_source', 'BAM', new \DateTime('2015-10-10'));
+    }
+
+    /**
+     * @test
+     */
+    public function latest()
+    {
+        $manager = new Manager(
+            'RSD',
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2015-10-10'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
+
+        $this->assertEquals(10.0, $manager->latest('some_source', 'BAM')->getValue());
+    }
+
+    /**
+     * @test
+     *
+     * @expectedException \RunOpenCode\ExchangeRate\Exception\ExchangeRateException
+     */
+    public function itThrowsExceptionWhenFetchingLatestOnEmptyRepository()
+    {
+        $manager = new Manager(
+            'RSD',
+            new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        $manager->latest('some_source', 'BAM');
+    }
+
+    /**
+     * @test
+     */
+    public function historicalExactDate()
+    {
+        $manager = new Manager(
+            'RSD',
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2017-10-08'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
+
+        $this->assertEquals(10.0, $manager->historical('some_source', 'BAM', \DateTime::createFromFormat('Y-m-d', '2017-10-08'))->getValue());
+    }
+
+    /**
+     * @test
+     */
+    public function historicalWeekend()
+    {
+        $manager = new Manager(
+            'RSD',
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2017-06-09'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
+
+        $this->assertEquals(10.0, $manager->historical('some_source', 'BAM', \DateTime::createFromFormat('Y-m-d', '2017-06-10'))->getValue());
+        $this->assertEquals(10.0, $manager->historical('some_source', 'BAM', \DateTime::createFromFormat('Y-m-d', '2017-06-11'))->getValue());
+    }
+
+    /**
+     * @test
+     *
+     * @expectedException \RunOpenCode\ExchangeRate\Exception\ExchangeRateException
+     */
+    public function itThrowsExceptionWhenHistoricalRateDoesNotExists()
+    {
+        $manager = new Manager(
+            'RSD',
+            new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        $manager->historical('some_source', 'BAM', \DateTime::createFromFormat('Y-m-d', '2017-06-10'));
+    }
+
+    /**
+     * @test
+     *
+     * @expectedException \RunOpenCode\ExchangeRate\Exception\ExchangeRateException
+     */
+    public function itThrowsExceptionWhenTodayRateDoesNotExists()
+    {
+        $manager = new Manager(
+            'RSD',
+            new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        $manager->today('some_source', 'BAM');
     }
 
     /**

@@ -15,6 +15,11 @@ use RunOpenCode\ExchangeRate\Model\Rate;
 use RunOpenCode\ExchangeRate\Processor\UniqueRatesValidator;
 use RunOpenCode\ExchangeRate\Registry\RatesConfigurationRegistry;
 
+/**
+ * Class UniqueRatesValidatorTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Processor
+ */
 class UniqueRatesValidatorTest extends TestCase
 {
     /**

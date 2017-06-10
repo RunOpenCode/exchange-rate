@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Registry\ProcessorsRegistry;
 
+/**
+ * Class ProcessorsRegistryTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Registry
+ */
 class ProcessorsRegistryTest extends TestCase
 {
     /**

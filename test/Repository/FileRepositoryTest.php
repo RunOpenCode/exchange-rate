@@ -11,6 +11,11 @@ namespace RunOpenCode\ExchangeRate\Tests\Repository;
 
 use RunOpenCode\ExchangeRate\Repository\FileRepository;
 
+/**
+ * Class FileRepositoryTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Repository
+ */
 class FileRepositoryTest extends AbstractRepositoryTest
 {
     /**

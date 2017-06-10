@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Utils\SourceFilterUtil;
 
+/**
+ * Class SourceFilterUtilTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Utils
+ */
 class SourceFilterUtilTest extends TestCase
 {
     /**

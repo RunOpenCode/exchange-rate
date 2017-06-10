@@ -78,6 +78,16 @@ class Manager implements ManagerInterface
     }
 
     /**
+     * Get base currency
+     *
+     * @return string
+     */
+    public function getBaseCurrency()
+    {
+        return $this->baseCurrency;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @throws \RunOpenCode\ExchangeRate\Exception\UnknownCurrencyCodeException
@@ -143,7 +153,9 @@ class Manager implements ManagerInterface
 
         if ((int) $date->format('N') === 6 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P1D')), $rateType)) {
             return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
-        } elseif ((int) $date->format('N') === 7 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P2D')), $rateType)) {
+        }
+
+        if ((int) $date->format('N') === 7 && $this->has($sourceName, $currencyCode, $lastFriday = $date->sub(new \DateInterval('P2D')), $rateType)) {
             return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
         }
 
@@ -189,15 +201,5 @@ class Manager implements ManagerInterface
         $this->repository->save($rates);
 
         return $rates;
-    }
-
-    /**
-     * Get base currency
-     *
-     * @return string
-     */
-    public function getBaseCurrency()
-    {
-        return $this->baseCurrency;
     }
 }

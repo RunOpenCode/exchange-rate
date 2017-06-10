@@ -12,6 +12,11 @@ namespace RunOpenCode\ExchangeRate\Tests\Exception;
 use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 
+/**
+ * Class ExchangeRateExceptionTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Exception
+ */
 class ExchangeRateExceptionTest extends TestCase
 {
     /**

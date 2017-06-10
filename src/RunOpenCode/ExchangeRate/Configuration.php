@@ -18,6 +18,8 @@ use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
  * parameters, if required.
  *
  * @package RunOpenCode\ExchangeRate
+ *
+ * @codeCoverageIgnore
  */
 class Configuration
 {

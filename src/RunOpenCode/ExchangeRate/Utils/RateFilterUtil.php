@@ -22,10 +22,7 @@ final class RateFilterUtil
 {
     use FilterUtilHelper;
 
-    private function __construct()
-    {
-        // noop
-    }
+    private function __construct() { /* noop */ }
 
     /**
      * Check if rate matches filters.

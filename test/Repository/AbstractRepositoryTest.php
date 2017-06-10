@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\RepositoryInterface;
 use RunOpenCode\ExchangeRate\Model\Rate;
 
+/**
+ * Class AbstractRepositoryTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Repository
+ */
 abstract class AbstractRepositoryTest extends TestCase
 {
     /**

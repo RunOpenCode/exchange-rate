@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Configuration;
 use RunOpenCode\ExchangeRate\Registry\RatesConfigurationRegistry;
 
+/**
+ * Class RatesConfigurationRegistryTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Registry
+ */
 class RatesConfigurationRegistryTest extends TestCase
 {
     /**

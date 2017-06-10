@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Registry\SourcesRegistry;
 
+/**
+ * Class SourcesRegistryTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Registry
+ */
 class SourcesRegistryTest extends TestCase
 {
     /**

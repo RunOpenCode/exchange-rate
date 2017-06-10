@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Model\Rate;
 use RunOpenCode\ExchangeRate\Utils\RateFilterUtil;
 
+/**
+ * Class RateFilterUtilTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Utils
+ */
 class RateFilterUtilTest extends TestCase
 {
     /**

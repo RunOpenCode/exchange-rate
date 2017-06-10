@@ -13,6 +13,11 @@ use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Configuration;
 use RunOpenCode\ExchangeRate\Utils\ConfigurationFilterUtil;
 
+/**
+ * Class ConfigurationFilterUtilTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Utils
+ */
 class ConfigurationFilterUtilTest extends TestCase
 {
     /**

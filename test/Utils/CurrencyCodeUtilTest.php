@@ -12,6 +12,11 @@ namespace RunOpenCode\ExchangeRate\Tests\Utils;
 use PHPUnit\Framework\TestCase;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
+/**
+ * Class CurrencyCodeUtilTest
+ *
+ * @package RunOpenCode\ExchangeRate\Tests\Utils
+ */
 class CurrencyCodeUtilTest extends TestCase
 {
     /**
