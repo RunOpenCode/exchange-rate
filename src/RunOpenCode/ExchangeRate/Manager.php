@@ -123,7 +123,7 @@ class Manager implements ManagerInterface
     public function today($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
     {
         $currencyCode = CurrencyCodeUtil::clean($currencyCode);
-        $today = new \DateTime('now');
+        $today = new \DateTime('@'.time());
 
         if ($this->has($sourceName, $currencyCode, $today, $rateType)) {
             return $this->get($sourceName, $currencyCode, $today, $rateType);

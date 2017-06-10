@@ -65,9 +65,15 @@ final class RateFilterUtil
         }
 
         if ($key === 'dateFrom') {
-            return $date <= $rate->getDate();
-        } elseif ($key === 'dateTo') {
-            return $date >= $rate->getDate();
+            $rateDate = new \DateTime($rate->getDate()->format(\DateTime::ATOM));
+            $rateDate->setTime(23, 59, 59);
+            return $date <= $rateDate;
+        }
+
+        if ($key === 'dateTo') {
+            $rateDate = new \DateTime($rate->getDate()->format(\DateTime::ATOM));
+            $rateDate->setTime(0, 0, 0);
+            return $date >= $rateDate;
         }
 
         return $date->format('Y-m-d') === $rate->getDate()->format('Y-m-d');

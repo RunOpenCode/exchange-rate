@@ -1,4 +1,16 @@
 <?php
+
+namespace RunOpenCode\ExchangeRate;
+
+global $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66;
+$__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66 = \time();
+
+function time() {
+    global $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66;
+    return $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66;
+}
+
+
 /*
  * This file is part of the Exchange Rate package, an RunOpenCode project.
  *
@@ -202,6 +214,82 @@ class ManagerTest extends TestCase
         );
 
         $manager->historical('some_source', 'BAM', \DateTime::createFromFormat('Y-m-d', '2017-06-10'));
+    }
+
+    /**
+     * @test
+     */
+    public function workingDay()
+    {
+        $manager = new Manager(
+            'RSD',
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        global $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66;
+        $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66 = \DateTime::createFromFormat('Y-m-d', '2017-06-09')->getTimestamp();
+
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2017-06-09'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
+
+        $this->assertEquals(10.0, $manager->today('some_source', 'BAM')->getValue());
+
+        $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66 = \time();
+    }
+
+    /**
+     * @test
+     */
+    public function saturday()
+    {
+        $manager = new Manager(
+            'RSD',
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2017-06-09'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
+
+        global $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66;
+        $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66 = \DateTime::createFromFormat('Y-m-d', '2017-06-10')->getTimestamp();
+
+        $this->assertEquals(10.0, $manager->today('some_source', 'BAM')->getValue());
+
+        $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66 = \time();
+    }
+
+    /**
+     * @test
+     */
+    public function sunday()
+    {
+        $manager = new Manager(
+            'RSD',
+            $repository = new MemoryRepository(),
+            new SourcesRegistry(),
+            new ProcessorsRegistry(),
+            new RatesConfigurationRegistry()
+        );
+
+
+        $repository->save([
+            new Rate('some_source', 10, 'BAM', 'median', \DateTime::createFromFormat('Y-m-d', '2017-06-09'), 'RSD', new \DateTime(), new \DateTime()),
+        ]);
+
+        global $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66;
+        $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66 = \DateTime::createFromFormat('Y-m-d', '2017-06-11')->getTimestamp();
+
+        $this->assertEquals(10.0, $manager->today('some_source', 'BAM')->getValue());
+
+        $__runOpenCode__exchangeRateBundle__unitTest__globalCurrentTime_b2f933d5fe66 = \time();
     }
 
     /**
