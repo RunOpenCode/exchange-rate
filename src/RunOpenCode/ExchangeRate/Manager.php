@@ -18,7 +18,6 @@ use RunOpenCode\ExchangeRate\Contract\SourceInterface;
 use RunOpenCode\ExchangeRate\Contract\SourcesRegistryInterface;
 use RunOpenCode\ExchangeRate\Enum\RateType;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
-use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 /**
@@ -30,8 +29,6 @@ use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
  */
 class Manager implements ManagerInterface
 {
-    use LoggerAwareTrait;
-
     /**
      * @var string
      */
@@ -133,9 +130,7 @@ class Manager implements ManagerInterface
             return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
         }
 
-        $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d'));
-        $this->getLogger()->critical($message);
-        throw new ExchangeRateException($message);
+        throw new ExchangeRateException(sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for today "%s".', $currencyCode, $rateType, $sourceName, date('Y-m-d')));
     }
 
     /**
@@ -159,9 +154,7 @@ class Manager implements ManagerInterface
             return $this->get($sourceName, $currencyCode, $lastFriday, $rateType);
         }
 
-        $message = sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for historical date "%s".', $currencyCode, $rateType, $sourceName, $date->format('Y-m-d'));
-        $this->getLogger()->critical($message);
-        throw new ExchangeRateException($message);
+        throw new ExchangeRateException(sprintf('Rate for currency code "%s" of type "%s" from source "%s" is not available for historical date "%s".', $currencyCode, $rateType, $sourceName, $date->format('Y-m-d')));
     }
 
     /**

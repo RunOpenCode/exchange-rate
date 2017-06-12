@@ -13,7 +13,6 @@ use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
-use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
 use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
 
 /**
@@ -27,8 +26,6 @@ use RunOpenCode\ExchangeRate\Utils\CurrencyCodeUtil;
  */
 class BaseCurrencyValidator implements ProcessorInterface
 {
-    use LoggerAwareTrait;
-
     /**
      * {@inheritdoc}
      */
@@ -42,10 +39,7 @@ class BaseCurrencyValidator implements ProcessorInterface
         foreach ($rates as $rate) {
 
             if ($baseCurrencyCode !== $rate->getBaseCurrencyCode()) {
-                $message = sprintf('Invalid base currency code "%s" of rate "%s" from source "%s" is not calculated.', $rate->getBaseCurrencyCode(), $rate->getCurrencyCode(), $rate->getSourceName());
-
-                $this->getLogger()->critical($message);
-                throw new ConfigurationException($message);
+                throw new ConfigurationException(sprintf('Invalid base currency code "%s" of rate "%s" from source "%s" is not calculated.', $rate->getBaseCurrencyCode(), $rate->getCurrencyCode(), $rate->getSourceName()));
             }
         }
 

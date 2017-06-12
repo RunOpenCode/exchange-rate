@@ -13,7 +13,6 @@ use RunOpenCode\ExchangeRate\Contract\ProcessorInterface;
 use RunOpenCode\ExchangeRate\Contract\RateInterface;
 use RunOpenCode\ExchangeRate\Contract\RatesConfigurationRegistryInterface;
 use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
-use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
 
 /**
  * Class UniqueRatesValidator
@@ -27,8 +26,6 @@ use RunOpenCode\ExchangeRate\Log\LoggerAwareTrait;
  */
 class UniqueRatesValidator implements ProcessorInterface
 {
-    use LoggerAwareTrait;
-
     /**
      * {@inheritdoc}
      *
@@ -46,10 +43,7 @@ class UniqueRatesValidator implements ProcessorInterface
             $key = sprintf('%s_%s_%s_%s', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName(), $rate->getDate()->format('Y-m-d'));
 
             if (array_key_exists($key, $registry)) {
-                $message = sprintf('Currency code "%s" of rate type "%s" from source "%s" valid on date "%s" is duplicated.', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName(), $rate->getDate()->format('Y-m-d'));
-
-                $this->getLogger()->critical($message);
-                throw new ConfigurationException($message);
+                throw new ConfigurationException(sprintf('Currency code "%s" of rate type "%s" from source "%s" valid on date "%s" is duplicated.', $rate->getCurrencyCode(), $rate->getRateType(), $rate->getSourceName(), $rate->getDate()->format('Y-m-d')));
             }
 
             $registry[$key] = $rate->getSourceName();

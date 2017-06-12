@@ -9,7 +9,6 @@
  */
 namespace RunOpenCode\ExchangeRate\Contract;
 
-use Psr\Log\LoggerAwareInterface;
 use RunOpenCode\ExchangeRate\Enum\RateType;
 use RunOpenCode\ExchangeRate\Exception\ConfigurationException;
 use RunOpenCode\ExchangeRate\Exception\SourceNotAvailableException;
@@ -23,7 +22,7 @@ use RunOpenCode\ExchangeRate\Exception\UnknownRateTypeException;
  *
  * @package RunOpenCode\ExchangeRateBundle\Contract
  */
-interface SourceInterface extends LoggerAwareInterface
+interface SourceInterface
 {
     /**
      * Get unique source name.

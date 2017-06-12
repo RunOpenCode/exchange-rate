@@ -9,7 +9,6 @@
  */
 namespace RunOpenCode\ExchangeRate\Contract;
 
-use Psr\Log\LoggerAwareInterface;
 use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
 
 /**
@@ -19,7 +18,7 @@ use RunOpenCode\ExchangeRate\Exception\ExchangeRateException;
  *
  * @package RunOpenCode\ExchangeRate\Contract
  */
-interface ProcessorInterface extends LoggerAwareInterface
+interface ProcessorInterface
 {
     /**
      * Process all given rates (after fetch process).
