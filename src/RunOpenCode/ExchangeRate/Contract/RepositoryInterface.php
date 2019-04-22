@@ -7,6 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace RunOpenCode\ExchangeRate\Contract;
 
 use RunOpenCode\ExchangeRate\Enum\RateType;
@@ -37,10 +38,10 @@ interface RepositoryInterface extends \Countable
     /**
      * Check if exchange rate for currency is available on given date.
      *
-     * @param string $sourceName Source from which rate is fetched.
-     * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param \DateTime|null $date Date of rate, or current date is going to be used.
-     * @param string $rateType Type of rate.
+     * @param string         $sourceName   Source from which rate is fetched.
+     * @param string         $currencyCode Currency code for which exchange rate is required.
+     * @param \DateTime|null $date         Date of rate, or current date is going to be used.
+     * @param string         $rateType     Type of rate.
      *
      * @return bool
      */
@@ -49,10 +50,10 @@ interface RepositoryInterface extends \Countable
     /**
      * Get rate for currency on given date.
      *
-     * @param string $sourceName Source from which rate is fetched.
-     * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param \DateTime|null $date Date of rate, or current date is going to be used.
-     * @param string $rateType Type of rate.
+     * @param string         $sourceName   Source from which rate is fetched.
+     * @param string         $currencyCode Currency code for which exchange rate is required.
+     * @param \DateTime|null $date         Date of rate, or current date is going to be used.
+     * @param string         $rateType     Type of rate.
      *
      * @return RateInterface
      */
@@ -61,13 +62,14 @@ interface RepositoryInterface extends \Countable
     /**
      * Get latest available rate.
      *
-     * @param string $sourceName Source from which rate is fetched.
-     * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param string $rateType Type of rate.
+     * @param string             $sourceName   Source from which rate is fetched.
+     * @param string             $currencyCode Currency code for which exchange rate is required.
+     * @param string             $rateType     Type of rate.
+     * @param \DateTimeInterface $date         $date If provided, will be used as date upper bound.
      *
      * @return RateInterface
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN);
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN, \DateTimeInterface $date = null);
 
     /**
      * Get all rates. If filtering criteria is provided, return matches only.
@@ -86,7 +88,8 @@ interface RepositoryInterface extends \Countable
      * * offset, int
      *
      * @param array $criteria Filtering criteria to apply.
+     *
      * @return RateInterface[]
      */
-    public function all(array $criteria = array());
+    public function all(array $criteria = []);
 }

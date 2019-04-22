@@ -138,12 +138,16 @@ class FileRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN, \DateTimeInterface $date = null)
     {
         /**
          * @var RateInterface $rate
          */
         foreach ($this->rates as $rate) {
+
+            if (null !== $date && $date < $rate->getDate()) {
+                continue;
+            }
 
             if (
                 $rate->getSourceName() === $sourceName

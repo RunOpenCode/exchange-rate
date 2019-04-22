@@ -7,6 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace RunOpenCode\ExchangeRate\Contract;
 
 use RunOpenCode\ExchangeRate\Enum\RateType;
@@ -27,10 +28,10 @@ interface ManagerInterface
     /**
      * Check if manager contains required exchange rate.
      *
-     * @param string $sourceName Source from which rate is fetched.
-     * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param \DateTime|null $date Date of rate, or current date is going to be used.
-     * @param string $rateType Type of rate.
+     * @param string         $sourceName   Source from which rate is fetched.
+     * @param string         $currencyCode Currency code for which exchange rate is required.
+     * @param \DateTime|null $date         Date of rate, or current date is going to be used.
+     * @param string         $rateType     Type of rate.
      *
      * @return bool
      *
@@ -43,10 +44,10 @@ interface ManagerInterface
     /**
      * Get rate for currency on given date.
      *
-     * @param string $sourceName Source from which rate is fetched.
-     * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param \DateTime $date Date of rate.
-     * @param string $rateType Type of rate.
+     * @param string    $sourceName   Source from which rate is fetched.
+     * @param string    $currencyCode Currency code for which exchange rate is required.
+     * @param \DateTime $date         Date of rate.
+     * @param string    $rateType     Type of rate.
      *
      * @return RateInterface
      *
@@ -60,9 +61,10 @@ interface ManagerInterface
     /**
      * Get latest available rate.
      *
-     * @param string $sourceName Source from which rate is fetched.
-     * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param string $rateType Type of rate.
+     * @param string             $sourceName   Source from which rate is fetched.
+     * @param string             $currencyCode Currency code for which exchange rate is required.
+     * @param string             $rateType     Type of rate.
+     * @param \DateTimeInterface $date         If provided, will be used as date upper bound.
      *
      * @return RateInterface
      *
@@ -71,7 +73,7 @@ interface ManagerInterface
      * @throws SourceNotAvailableException
      * @throws ExchangeRateException
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN);
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN, \DateTimeInterface $date = null);
 
     /**
      * Get rate which ought to be used today.
@@ -81,9 +83,9 @@ interface ManagerInterface
      *
      * For Saturday and Sunday, rate from Friday is used.
      *
-     * @param string $sourceName Source from which rate is fetched.
+     * @param string $sourceName   Source from which rate is fetched.
      * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param string $rateType Type of rate.
+     * @param string $rateType     Type of rate.
      *
      * @return RateInterface
      *
@@ -102,10 +104,10 @@ interface ManagerInterface
      *
      * For Saturday and Sunday, rate from Friday is used.
      *
-     * @param string $sourceName Source from which rate is fetched.
-     * @param string $currencyCode Currency code for which exchange rate is required.
-     * @param \DateTime $date Date of rate.
-     * @param string $rateType Type of rate.
+     * @param string    $sourceName   Source from which rate is fetched.
+     * @param string    $currencyCode Currency code for which exchange rate is required.
+     * @param \DateTime $date         Date of rate.
+     * @param string    $rateType     Type of rate.
      *
      * @return RateInterface
      *
@@ -122,7 +124,8 @@ interface ManagerInterface
      * Execute this method once every day, after 2 PM.
      *
      * @param string|array|null $sourceName Name of source from where rates should be fetched from. If none is provided, rates will be fetched from all sources.
-     * @param null|\DateTime $date Date for which rates should be fetched. If not provieded, current date will be used.
+     * @param null|\DateTime    $date       Date for which rates should be fetched. If not provieded, current date will be used.
+     *
      * @return RateInterface[] Fetched and processed rates.
      *
      * @throws SourceNotAvailableException

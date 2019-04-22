@@ -7,6 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
+
 namespace RunOpenCode\ExchangeRate\Repository;
 
 use Doctrine\DBAL\Connection;
@@ -49,13 +50,13 @@ class DoctrineDbalRepository implements RepositoryInterface
     /**
      * DoctrineDbalRepository constructor.
      *
-     * @param Connection $connection Dbal connection.
-     * @param string|null $tableName Table name in which rates will be stored, or NULL for 'runopencode_exchange_rate'.
+     * @param Connection  $connection Dbal connection.
+     * @param string|null $tableName  Table name in which rates will be stored, or NULL for 'runopencode_exchange_rate'.
      */
     public function __construct(Connection $connection, $tableName = null)
     {
         $this->connection = $connection;
-        $this->tableName = ($tableName = trim($tableName)) ? $tableName : 'runopencode_exchange_rate';
+        $this->tableName  = ($tableName = trim($tableName)) ? $tableName : 'runopencode_exchange_rate';
 
         $this->initialize();
     }
@@ -77,26 +78,26 @@ class DoctrineDbalRepository implements RepositoryInterface
                 if ($this->has($rate->getSourceName(), $rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType())) {
 
                     $this->connection->executeQuery(sprintf('UPDATE %s SET rate_value = :rate_value, modified_at = :modified_at WHERE source_name = :source_name AND currency_code = :currency_code AND rate_date = :rate_date AND rate_type = :rate_type;', $this->tableName), [
-                        'rate_value' => (float) $rate->getValue(),
-                        'source_name' => $rate->getSourceName(),
+                        'rate_value'    => (float)$rate->getValue(),
+                        'source_name'   => $rate->getSourceName(),
                         'currency_code' => $rate->getCurrencyCode(),
-                        'rate_date' => $rate->getDate()->format('Y-m-d'),
-                        'rate_type' => $rate->getRateType(),
-                        'modified_at' => date('Y-m-d H:i:s'),
+                        'rate_date'     => $rate->getDate()->format('Y-m-d'),
+                        'rate_type'     => $rate->getRateType(),
+                        'modified_at'   => date('Y-m-d H:i:s'),
                     ]);
 
                     continue;
                 }
 
                 $this->connection->executeQuery(sprintf('INSERT INTO %s (source_name, rate_value, currency_code, rate_type, rate_date, base_currency_code, created_at, modified_at) VALUES (:source_name, :rate_value, :currency_code, :rate_type, :rate_date, :base_currency_code, :created_at, :modified_at);', $this->tableName), [
-                    'source_name' => $rate->getSourceName(),
-                    'rate_value' => (float) $rate->getValue(),
-                    'currency_code' => $rate->getCurrencyCode(),
-                    'rate_type' => $rate->getRateType(),
-                    'rate_date' => $rate->getDate()->format('Y-m-d'),
+                    'source_name'        => $rate->getSourceName(),
+                    'rate_value'         => (float)$rate->getValue(),
+                    'currency_code'      => $rate->getCurrencyCode(),
+                    'rate_type'          => $rate->getRateType(),
+                    'rate_date'          => $rate->getDate()->format('Y-m-d'),
                     'base_currency_code' => $rate->getBaseCurrencyCode(),
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'modified_at' => date('Y-m-d H:i:s'),
+                    'created_at'         => date('Y-m-d H:i:s'),
+                    'modified_at'        => date('Y-m-d H:i:s'),
                 ]);
             }
 
@@ -128,10 +129,10 @@ class DoctrineDbalRepository implements RepositoryInterface
                 }
 
                 $this->connection->executeQuery(sprintf('DELETE FROM %s WHERE source_name = :source_name AND currency_code = :currency_code AND rate_date = :rate_date AND rate_type = :rate_type;', $this->tableName), [
-                    'source_name' => $rate->getSourceName(),
+                    'source_name'   => $rate->getSourceName(),
                     'currency_code' => $rate->getCurrencyCode(),
-                    'rate_date' => $rate->getDate()->format('Y-m-d'),
-                    'rate_type' => $rate->getRateType(),
+                    'rate_date'     => $rate->getDate()->format('Y-m-d'),
+                    'rate_type'     => $rate->getRateType(),
                 ]);
             }
 
@@ -152,7 +153,7 @@ class DoctrineDbalRepository implements RepositoryInterface
         }
 
         try {
-            return (bool) $this->get($sourceName, $currencyCode, $date, $rateType);
+            return (bool)$this->get($sourceName, $currencyCode, $date, $rateType);
         } catch (ExchangeRateException $e) {
             return false;
         }
@@ -177,10 +178,10 @@ class DoctrineDbalRepository implements RepositoryInterface
             $result = $this->connection->fetchAll(
                 sprintf('SELECT R.* FROM %s R WHERE R.source_name = :source_name AND R.currency_code = :currency_code AND R.rate_date = :rate_date AND R.rate_type = :rate_type;', $this->tableName),
                 [
-                    'source_name' => $sourceName,
+                    'source_name'   => $sourceName,
                     'currency_code' => $currencyCode,
-                    'rate_date' => $date->format('Y-m-d'),
-                    'rate_type' => $rateType,
+                    'rate_date'     => $date->format('Y-m-d'),
+                    'rate_type'     => $rateType,
                 ]
             );
 
@@ -197,26 +198,31 @@ class DoctrineDbalRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN, \DateTimeInterface $date = null)
     {
+        $query  = 'SELECT R.* FROM %s R WHERE R.source_name = :source_name AND R.currency_code = :currency_code AND R.rate_type = :rate_type ORDER BY R.rate_date DESC;';
+        $params = [
+            'source_name'   => $sourceName,
+            'currency_code' => $currencyCode,
+            'rate_type'     => $rateType,
+        ];
+
+        if (null !== $date) {
+            $query  = 'SELECT R.* FROM %s R WHERE R.source_name = :source_name AND R.currency_code = :currency_code AND R.rate_type = :rate_type AND R.rate_date <= :cap_date ORDER BY R.rate_date DESC;';
+            $params['cap_date'] = $date;
+        }
+
         /**
          * @var array $result
          */
-        $result = $this->connection->fetchAll(
-            sprintf('SELECT R.* FROM %s R WHERE R.source_name = :source_name AND R.currency_code = :currency_code AND R.rate_type = :rate_type ORDER BY R.rate_date DESC;', $this->tableName),
-            [
-                'source_name' => $sourceName,
-                'currency_code' => $currencyCode,
-                'rate_type' => $rateType,
-            ]
-        );
+        $result = $this->connection->fetchAll(sprintf($query, $this->tableName), $params);
 
         if (0 === count($result)) {
             throw new ExchangeRateException(sprintf('Could not fetch latest rate for rate currency code "%s" and rate type "%s".', $currencyCode, $rateType));
         }
 
         $rate = $this->buildRateFromTableRowData($result[0]);
-        $key = $this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName());
+        $key  = $this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName());
 
         return ($this->identityMap[$key] = $rate);
     }
@@ -224,7 +230,7 @@ class DoctrineDbalRepository implements RepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function all(array $criteria = array())
+    public function all(array $criteria = [])
     {
         /**
          * @var QueryBuilder $queryBuilder
@@ -237,8 +243,7 @@ class DoctrineDbalRepository implements RepositoryInterface
             ->addOrderBy('R.rate_date', 'DESC')
             ->addOrderBy('R.source_name', 'ASC')
             ->addOrderBy('R.currency_code', 'ASC')
-            ->addOrderBy('R.rate_type', 'ASC')
-        ;
+            ->addOrderBy('R.rate_type', 'ASC');
 
         if (0 !== count($currencyCodes = self::extractArrayCriteria('currencyCode', $criteria))) {
             $queryBuilder
@@ -292,10 +297,10 @@ class DoctrineDbalRepository implements RepositoryInterface
         $result = [];
 
         while (($row = $statement->fetch()) !== false) {
-            $rate = $this->buildRateFromTableRowData($row);
-            $key = $this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName());
+            $rate                    = $this->buildRateFromTableRowData($row);
+            $key                     = $this->getRateKey($rate->getCurrencyCode(), $rate->getDate(), $rate->getRateType(), $rate->getSourceName());
             $this->identityMap[$key] = $rate;
-            $result[] = $rate;
+            $result[]                = $rate;
         }
 
         return $result;
@@ -310,23 +315,24 @@ class DoctrineDbalRepository implements RepositoryInterface
          * @var Statement $statement
          */
         $statement = $this->connection->query(sprintf('SELECT count(*) as cnt FROM %s;', $this->tableName), \PDO::FETCH_ASSOC);
-        return (int) $statement->fetchAll()[0]['cnt'];
+        return (int)$statement->fetchAll()[0]['cnt'];
     }
 
     /**
      * Builds rate key to speed up search.
      *
-     * @param string $currencyCode
+     * @param string    $currencyCode
      * @param \DateTime $date
-     * @param string $rateType
-     * @param string $sourceName
+     * @param string    $rateType
+     * @param string    $sourceName
+     *
      * @return string
      */
     protected function getRateKey($currencyCode, $date, $rateType, $sourceName)
     {
         return str_replace(
-            array('%currency_code%', '%date%', '%rate_type%', '%source_name%'),
-            array($currencyCode, $date->format('Y-m-d'), $rateType, $sourceName),
+            ['%currency_code%', '%date%', '%rate_type%', '%source_name%'],
+            [$currencyCode, $date->format('Y-m-d'), $rateType, $sourceName],
             '%currency_code%_%date%_%rate_type%_%source_name%'
         );
     }
@@ -361,13 +367,14 @@ class DoctrineDbalRepository implements RepositoryInterface
      * Build rate from table row data.
      *
      * @param array $row Row data.
+     *
      * @return Rate
      */
     private function buildRateFromTableRowData(array $row)
     {
         return new Rate(
             $row['source_name'],
-            (float) $row['rate_value'],
+            (float)$row['rate_value'],
             $row['currency_code'],
             $row['rate_type'],
             \DateTime::createFromFormat('Y-m-d', $row['rate_date']),

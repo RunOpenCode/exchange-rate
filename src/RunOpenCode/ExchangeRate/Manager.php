@@ -107,9 +107,9 @@ class Manager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN, \DateTimeInterface $date = null)
     {
-        return $this->repository->latest($sourceName, CurrencyCodeUtil::clean($currencyCode), $rateType);
+        return $this->repository->latest($sourceName, CurrencyCodeUtil::clean($currencyCode), $rateType, $date);
     }
 
     /**

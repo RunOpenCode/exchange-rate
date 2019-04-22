@@ -84,10 +84,10 @@ class LoggableManager implements ManagerInterface
     /**
      * {@inheritdoc}
      */
-    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN)
+    public function latest($sourceName, $currencyCode, $rateType = RateType::MEDIAN, \DateTimeInterface $date = null)
     {
         try {
-            return $this->manager->latest($sourceName, $currencyCode, $rateType);
+            return $this->manager->latest($sourceName, $currencyCode, $rateType, $date);
         } catch (\Exception $e) {
             $this->logger->error('Unable to fetch latest rate for {currency_code} of type {rate_type} from source {source}.', [
                 'currency_code' => $currencyCode,
