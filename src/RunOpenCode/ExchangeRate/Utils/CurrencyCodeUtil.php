@@ -162,6 +162,7 @@ final class CurrencyCodeUtil
         'ESP' => 'Spain Peseta',
         'XDR' => 'IMF Special Drawing Rights',
         'SKK' => 'Slovak Koruna',
+        'BYN' => 'Belarusian ruble',
     );
 
     /**
