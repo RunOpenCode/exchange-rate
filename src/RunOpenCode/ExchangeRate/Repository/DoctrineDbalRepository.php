@@ -209,7 +209,7 @@ class DoctrineDbalRepository implements RepositoryInterface
 
         if (null !== $date) {
             $query  = 'SELECT R.* FROM %s R WHERE R.source_name = :source_name AND R.currency_code = :currency_code AND R.rate_type = :rate_type AND R.rate_date <= :cap_date ORDER BY R.rate_date DESC;';
-            $params['cap_date'] = $date;
+            $params['cap_date'] = $date->format('Y-m-d');
         }
 
         /**
