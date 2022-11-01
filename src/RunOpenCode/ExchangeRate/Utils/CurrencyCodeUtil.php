@@ -33,6 +33,7 @@ final class CurrencyCodeUtil
      * @var array
      */
     private static $codes = array(
+        'AED' => 'United Arab Emirates Dirham',
         'ALL' => 'Albania Lek',
         'AFN' => 'Afghanistan Afghani',
         'ARS' => 'Argentina Peso',
